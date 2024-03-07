@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+
+
+<head>
+  <meta charset="UTF-8">
+  <title>error test</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+    integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.js"></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+          data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Instana</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">WebVitals As Custom Events <span class="sr-only">(current)</span></a></li>
+          <li><a href="#" id="link1">Link</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+              aria-expanded="false">Dropdown <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">One more separated link</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form class="navbar-form navbar-left">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search" id="searchInput">
+          </div>
+          <button type="button" class="btn btn-default" id="searchButton">search</button>
+        </form>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#">...</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+              aria-expanded="false">Dropdown <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+  <button type="button" class="btn btn-default" id="button1">button1</button>
+  <button type="button" class="btn btn-default" id="button2">button2</button>
+  <button type="button" class="btn btn-default" id="button3">button3</button>
+
+  <a id="open-blank-tab" href="about:blank" target="_blank">Open new blank tab</a>
+
+  <div class="jumbotron" id="resultwrap" style="display: none">
+    <div class="media">
+      <div class="media-body">
+        <h2 class="media-heading" id="result">...</h4>
+      </div>
+    </div>
+  </div>
+
+  <div id="webVitals_wrapper">
+    <header class="App-header">
+      <h1 id="webVitals_cls">Web vitals CLICK HERE...!!</h1>
+
+      <h3 id="cls">CLS: </h3>
+      <h3 id="inp">INP: </h3>
+      <h3 id="fid">FID: </h3>
+      <h3 id="lcp">LCP: </h3>
+      <h3 id="fcp">FCP: </h3>
+      <h3 id="ttfb">TTFB: </h3>
+    </header>
+  </div>
+
+  <script src="https://unpkg.com/web-vitals"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const metrics = {
+        cls: undefined,
+        fid: undefined,
+        lcp: undefined,
+        inp: undefined,
+        fcp: undefined,
+        ttfb: undefined
+      };
+
+      const updateMetrics = (name, value) => {
+        metrics[name.toLowerCase()] = value;
+        updateUI();
+      };
+
+      const updateUI = () => {
+        document.getElementById("cls").innerText = `CLS: ${metrics.cls}`;
+        document.getElementById("fid").innerText = `FID: ${metrics.fid}`;
+        document.getElementById("lcp").innerText = `LCP: ${metrics.lcp}`;
+        document.getElementById("inp").innerText = `INP: ${metrics.inp}`;
+        document.getElementById("fcp").innerText = `FCP: ${metrics.fcp}`;
+        document.getElementById("ttfb").innerText = `TTFB: ${metrics.ttfb}`;
+      };
+
+      const reportWebVitals = ({ name, value }) => {
+        console.log('METRICS', name, value)
+        console.log('---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        updateMetrics(name, value);
+      };
+
+      window.addEventListener('load', function () {
+        webVitals.onCLS(console.log);
+        webVitals.getFID(console.log);
+        webVitals.getLCP(console.log);
+        webVitals.getINP(console.log);
+        webVitals.getFCP(console.log);
+        webVitals.getTTFB(console.log);
+
+        webVitals.onCLS(reportWebVitals);
+        webVitals.getFID(reportWebVitals);
+        webVitals.getLCP(reportWebVitals);
+        webVitals.getINP(reportWebVitals);
+        webVitals.getFCP(reportWebVitals);
+        webVitals.getTTFB(reportWebVitals);
+      });
+    });
+
+
+
+    $('#button3').on('click', function () {
+      $('#button1').show();
+    });
+    $('#button2').on('click', function () {
+      $('#button1').hide();
+    });
+  </script>
+
+</body>
+
+</html>
