@@ -87,18 +87,18 @@
 
       window.addEventListener('load', function () {
         webVitals.onCLS(console.log);
-        webVitals.getFID(console.log);
-        webVitals.getLCP(console.log);
-        webVitals.getINP(console.log);
-        webVitals.getFCP(console.log);
-        webVitals.getTTFB(console.log);
+        webVitals.onFID(console.log);
+        webVitals.onLCP(console.log);
+        webVitals.onINP(console.log);
+        webVitals.onFCP(console.log);
+        webVitals.onTTFB(console.log);
 
         webVitals.onCLS(reportWebVitals);
-        webVitals.getFID(reportWebVitals);
-        webVitals.getLCP(reportWebVitals);
-        webVitals.getINP(reportWebVitals);
-        webVitals.getFCP(reportWebVitals);
-        webVitals.getTTFB(reportWebVitals);
+        webVitals.onFID(reportWebVitals);
+        webVitals.onLCP(reportWebVitals);
+        webVitals.onINP(reportWebVitals);
+        webVitals.onFCP(reportWebVitals);
+        webVitals.onTTFB(reportWebVitals);
       });
     });
 
