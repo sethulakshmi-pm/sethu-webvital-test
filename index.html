@@ -1,117 +1,144 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sethu-Web vital SauceLab Test</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.js"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <title>Sethu-Web vital SauceLab Test</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-    integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.js"></script>
-</head>
+  <body class="background">
+    <nav>
+      <div class="container-fluid">
+        <div class="nav-wrap" id="bs-example-navbar-collapse-1">
+          <a href="#">
+            <img
+              src="https://images.ctfassets.net/zsv3d0ugroxu/75Kkm5pm0NNl4sWQe2gjSt/e8ba090df9d386e6dcb882df98090ac0/Logo_Instana"
+              alt="HTML5 Icon"
+              width="128"
+              height="128"
+            />
+          </a>
 
-<body class="background">
-  <nav>
-    <div class="container-fluid">
-      <div class="nav-wrap" id="bs-example-navbar-collapse-1">
-        <a href="#">
-          <img
-            src="https://images.ctfassets.net/zsv3d0ugroxu/75Kkm5pm0NNl4sWQe2gjSt/e8ba090df9d386e6dcb882df98090ac0/Logo_Instana"
-            alt="HTML5 Icon" width="128" height="128">
-        </a>
+          <ul class="nav navbar-nav">
+            <li>
+              <a
+                style="color: white"
+                target="_blank"
+                href="https://web.dev/articles/vitals"
+                id="link1"
+                >Web Vitals</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-        <ul class="nav navbar-nav">
-          <li>
-            <a style="color: white;" target="_blank" href="https://web.dev/articles/vitals" id="link1">Web Vitals</a>
-          </li>
-        </ul>
+    <div>
+      <button type="button" class="btn btn-default" id="button1">
+        button1
+      </button>
+      <button type="button" class="btn btn-default" id="button2">
+        button2
+      </button>
+      <button type="button" class="btn btn-default" id="button3">
+        button3
+      </button>
+      <a id="open-blank-tab" href="about:blank" target="_blank"
+        >Open new blank tab</a
+      >
+    </div>
 
+    <div id="webVitals_wrapper">
+      <div>
+        <h1 id="webVitals_cls">Web vitals CLICK HERE...!!</h1>
+        <h1>1. Reload the page to get FCP and TTFB</h1>
+        <h3 id="fcp">FCP:</h3>
+        <h3 id="ttfb">TTFB:</h3>
+
+        <h1>2. Click anywhere in the screen to get LCP and FID</h1>
+        <h3 id="lcp">LCP:</h3>
+        <h3 id="fid">FID:</h3>
+
+        <h1>
+          3. Open a new tab and comeback to the same screen to get CLS and INP
+        </h1>
+        <h3 id="cls">CLS:</h3>
+        <h3 id="inp">INP:</h3>
       </div>
     </div>
-  </nav>
 
-  <div>
-    <button type="button" class="btn btn-default" id="button1">button1</button>
-    <button type="button" class="btn btn-default" id="button2">button2</button>
-    <button type="button" class="btn btn-default" id="button3">button3</button>
-    <a id="open-blank-tab" href="about:blank" target="_blank">Open new blank tab</a>
-  </div>
+    <script src="https://unpkg.com/web-vitals"></script>
 
-  <div id="webVitals_wrapper">
-    <div>
-      <h1 id="webVitals_cls">Web vitals CLICK HERE...!!</h1>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const metrics = {
+          cls: undefined,
+          fid: undefined,
+          lcp: undefined,
+          inp: undefined,
+          fcp: undefined,
+          ttfb: undefined,
+        };
 
-      <h3 id="cls">CLS: </h3>
-      <h3 id="inp">INP: </h3>
-      <h3 id="fid">FID: </h3>
-      <h3 id="lcp">LCP: </h3>
-      <h3 id="fcp">FCP: </h3>
-      <h3 id="ttfb">TTFB: </h3>
-    </div>
-  </div>
+        const updateMetrics = (name, value) => {
+          metrics[name.toLowerCase()] = value;
+          updateUI();
+        };
 
-  <script src="https://unpkg.com/web-vitals"></script>
+        const updateUI = () => {
+          document.getElementById("cls").innerText = `CLS: ${metrics.cls}`;
+          document.getElementById("fid").innerText = `FID: ${metrics.fid}`;
+          document.getElementById("lcp").innerText = `LCP: ${metrics.lcp}`;
+          document.getElementById("inp").innerText = `INP: ${metrics.inp}`;
+          document.getElementById("fcp").innerText = `FCP: ${metrics.fcp}`;
+          document.getElementById("ttfb").innerText = `TTFB: ${metrics.ttfb}`;
+        };
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const metrics = {
-        cls: undefined,
-        fid: undefined,
-        lcp: undefined,
-        inp: undefined,
-        fcp: undefined,
-        ttfb: undefined
-      };
+        const reportWebVitals = ({ name, value }) => {
+          console.log("METRICS", name, value);
+          console.log(
+            "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+          );
+          updateMetrics(name, value);
+        };
 
-      const updateMetrics = (name, value) => {
-        metrics[name.toLowerCase()] = value;
-        updateUI();
-      };
+        window.addEventListener("load", function () {
+          webVitals.onCLS(console.log);
+          webVitals.onFID(console.log);
+          webVitals.onLCP(console.log);
+          webVitals.onINP(console.log);
+          webVitals.onFCP(console.log);
+          webVitals.onTTFB(console.log);
 
-      const updateUI = () => {
-        document.getElementById("cls").innerText = `CLS: ${metrics.cls}`;
-        document.getElementById("fid").innerText = `FID: ${metrics.fid}`;
-        document.getElementById("lcp").innerText = `LCP: ${metrics.lcp}`;
-        document.getElementById("inp").innerText = `INP: ${metrics.inp}`;
-        document.getElementById("fcp").innerText = `FCP: ${metrics.fcp}`;
-        document.getElementById("ttfb").innerText = `TTFB: ${metrics.ttfb}`;
-      };
-
-      const reportWebVitals = ({ name, value }) => {
-        console.log('METRICS', name, value)
-        console.log('---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        updateMetrics(name, value);
-      };
-
-      window.addEventListener('load', function () {
-        webVitals.onCLS(console.log);
-        webVitals.onFID(console.log);
-        webVitals.onLCP(console.log);
-        webVitals.onINP(console.log);
-        webVitals.onFCP(console.log);
-        webVitals.onTTFB(console.log);
-
-        webVitals.onCLS(reportWebVitals);
-        webVitals.onFID(reportWebVitals);
-        webVitals.onLCP(reportWebVitals);
-        webVitals.onINP(reportWebVitals);
-        webVitals.onFCP(reportWebVitals);
-        webVitals.onTTFB(reportWebVitals);
+          webVitals.onCLS(reportWebVitals);
+          webVitals.onFID(reportWebVitals);
+          webVitals.onLCP(reportWebVitals);
+          webVitals.onINP(reportWebVitals);
+          webVitals.onFCP(reportWebVitals);
+          webVitals.onTTFB(reportWebVitals);
+        });
       });
-    });
 
-
-
-    $('#button3').on('click', function () {
-      $('#button1').show();
-    });
-    $('#button2').on('click', function () {
-      $('#button1').hide();
-    });
-  </script>
-
-</body>
-
+      $("#button3").on("click", function () {
+        $("#button1").show();
+      });
+      $("#button2").on("click", function () {
+        $("#button1").hide();
+      });
+    </script>
+  </body>
 </html>
