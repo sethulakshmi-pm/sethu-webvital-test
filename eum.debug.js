@@ -3652,6 +3652,7 @@
   }
 
   function addWebVitals(beacon) {
+    console.log('BEACON---', beacon)
     if (W) {
       W(onMetric, {
         reportAllChanges: true
