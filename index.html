@@ -15,14 +15,13 @@
     (function (s, t, a, n) {
       s[t] || (s[t] = a, n = s[a] = function () { n.q.push(arguments) },
         n.q = [], n.v = 2, n.l = 1 * new Date)
-    })(window, "InstanaEumObject", "ineum");
+    })(window, "EumObject", "ineum");
 
-    ineum('reportingUrl', 'https://test-dev.k8s.onprem.qa.instana.rocks/eum/');
-    ineum('key', 'DDIfChp3Qhq_nJAs4Lwe1w');
+    ineum('reportingUrl', 'https://eum-pink-saas.instana.rocks');
+    ineum('key', '9RXu2k5OS2GsjArQzz6ABw');
     ineum('trackSessions');
   </script>
-  <script defer crossorigin="anonymous" src="https://test-dev.k8s.onprem.qa.instana.rocks/eum/1.6.6/eum.min.js"
-    integrity="sha384-NeTJf4ldSF1mEi0eQixH+QRzFw1tfvsgXvdEW68lI2fB249vBPpxV1uwLB6xs0DU"></script>
+  <script defer crossorigin="anonymous" src="eum.debug.js"></script>
 
 </head>
 
