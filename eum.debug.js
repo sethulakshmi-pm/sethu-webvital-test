@@ -2094,6 +2094,7 @@
   // This is especially useful to make a connection between our beacon data and the performance timeline data.
   // Also see https://w3c.github.io/performance-timeline/#dom-performanceentrylist
   function observeResourcePerformance(opts) {
+    console.log('observeResourcePerformance----');
     console.log('observeResourcePerformance', opts);
 
     if (!isPerformanceObserverAvailable) {
