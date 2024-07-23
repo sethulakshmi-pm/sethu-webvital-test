@@ -1671,9 +1671,16 @@
   // See https://www.w3.org/TR/hr-time/
 
   function addResourceTimings(beacon, minStartTime) {
+    console.log('beacon', beacon);
+    console.log('isResourceTimingAvailable', isResourceTimingAvailable, !!isResourceTimingAvailable);
+
     if (!!isResourceTimingAvailable && win.JSON) {
+      console.log('minStartTime', minStartTime);
+      console.log('performance.getEntriesByType - resource', performance$1.getEntriesByType('resource'));
+
       var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
+      console.log('entries', _entries, win.JSON.stringify(_entries));
       beacon['res'] = win.JSON.stringify(_entries);
     } else {
       info('Resource timing not supported.');
@@ -1681,6 +1688,7 @@
   }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
+    console.log('performanceEntries', performanceEntries);
     var trie = createTrie();
 
     for (var _i2 = 0, _len2 = performanceEntries.length; _i2 < _len2; _i2++) {
@@ -1688,10 +1696,12 @@
       console.log('entry--', _entry);
 
       if (minStartTime != null && _entry['startTime'] - defaultVars.highResTimestampReference + defaultVars.referenceTimestamp < minStartTime) {
+        console.log('DDDDDDDDDDDDDD', _entry['startTime'], defaultVars.highResTimestampReference, defaultVars.referenceTimestamp, minStartTime);
         continue;
       } else if (_entry['duration'] < 0) {
-        // Some old browsers do not properly implement resource timing. They report negative durations.
+        console.log('entry-duration', _entry['duration']); // Some old browsers do not properly implement resource timing. They report negative durations.
         // Ignore instead of reporting these, as the data isn't usable.
+
         continue;
       }
 
