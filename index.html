@@ -104,20 +104,20 @@
       };
 
       const reportWebVitals = ({ name, value }) => {
-        console.log("METRICS", name, value);
-        console.log(
-          "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-        );
+        // console.log("METRICS", name, value);
+        // console.log(
+        //   "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+        // );
         updateMetrics(name, value);
       };
 
       window.addEventListener("load", function () {
-        webVitals.onCLS(console.log);
-        webVitals.onFID(console.log);
-        webVitals.onLCP(console.log);
-        webVitals.onINP(console.log);
-        webVitals.onFCP(console.log);
-        webVitals.onTTFB(console.log);
+        // webVitals.onCLS(console.log);
+        // webVitals.onFID(console.log);
+        // webVitals.onLCP(console.log);
+        // webVitals.onINP(console.log);
+        // webVitals.onFCP(console.log);
+        // webVitals.onTTFB(console.log);
 
         webVitals.onCLS(reportWebVitals);
         webVitals.onFID(reportWebVitals);
