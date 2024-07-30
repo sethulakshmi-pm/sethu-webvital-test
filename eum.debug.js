@@ -565,7 +565,6 @@
   };
 
   function serializeEntryToArray(entry) {
-    console.log('Duration-entry', entry);
     var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // When timing data is available, we can provide additional information about
     // caching and resource sizes.
 
@@ -1476,8 +1475,6 @@
   var maximumNumberOfInternalMetaDataFields = 128;
   var maximumLengthPerInternalMetaDataField = 1024;
   function addCommonBeaconProperties(beacon) {
-    console.log('addCommonBeaconProperties-beacon', beacon, defaultVars.reportingBackends);
-
     if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
       var _reportingBackend = defaultVars.reportingBackends[0];
       beacon['k'] = _reportingBackend['key'];
@@ -1672,15 +1669,11 @@
 
   function addResourceTimings(beacon, minStartTime) {
     console.log('beacon', beacon);
-    console.log('isResourceTimingAvailable', isResourceTimingAvailable, !!isResourceTimingAvailable);
 
     if (!!isResourceTimingAvailable && win.JSON) {
-      console.log('minStartTime', minStartTime);
-      console.log('performance.getEntriesByType - resource', performance$1.getEntriesByType('resource'));
-
       var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
-      console.log('entries', _entries, win.JSON.stringify(_entries));
+      console.log('entries-resource', _entries);
       beacon['res'] = win.JSON.stringify(_entries);
     } else {
       info('Resource timing not supported.');
@@ -1688,20 +1681,16 @@
   }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
-    console.log('performanceEntries', performanceEntries);
     var trie = createTrie();
 
     for (var _i2 = 0, _len2 = performanceEntries.length; _i2 < _len2; _i2++) {
       var _entry = performanceEntries[_i2];
-      console.log('entry--', _entry);
 
       if (minStartTime != null && _entry['startTime'] - defaultVars.highResTimestampReference + defaultVars.referenceTimestamp < minStartTime) {
-        console.log('DDDDDDDDDDDDDD', _entry['startTime'], defaultVars.highResTimestampReference, defaultVars.referenceTimestamp, minStartTime);
         continue;
       } else if (_entry['duration'] < 0) {
-        console.log('entry-duration', _entry['duration']); // Some old browsers do not properly implement resource timing. They report negative durations.
+        // Some old browsers do not properly implement resource timing. They report negative durations.
         // Ignore instead of reporting these, as the data isn't usable.
-
         continue;
       }
 
@@ -1826,6 +1815,7 @@
     }
 
     var paintTimings = performance$1.getEntriesByType('paint');
+    console.log('entries-paint', paintTimings);
     var firstPaintFound = false;
 
     for (var _i2 = 0; _i2 < paintTimings.length; _i2++) {
@@ -1876,13 +1866,11 @@
   };
   var state$1 = {
     onEnter: function onEnter() {
-      console.log('onEnter', beacon);
       addCommonBeaconProperties(beacon);
       beacon['t'] = defaultVars.pageLoadTraceId;
       beacon['bt'] = defaultVars.pageLoadBackendTraceId;
       beacon['u'] = stripSecrets(win.location.href);
       beacon['ph'] = pageLoad;
-      console.log('BEACON', beacon);
       addTimingToPageLoadBeacon(beacon);
       addResourceTimings(beacon);
       var beaconSent = false;
@@ -2108,9 +2096,6 @@
   // This is especially useful to make a connection between our beacon data and the performance timeline data.
   // Also see https://w3c.github.io/performance-timeline/#dom-performanceentrylist
   function observeResourcePerformance(opts) {
-    console.log('observeResourcePerformance');
-    console.log('observeResourcePerformance', opts);
-
     if (!isPerformanceObserverAvailable) {
       return observeWithoutPerformanceObserverSupport(opts.onEnd);
     } // Used to calculate the duration when no resource was found.
@@ -2171,10 +2156,8 @@
         // instead prefer our approximation.
         resource.duration < ONE_DAY_IN_MILLIS) {
         duration = Math.round(resource.duration);
-        console.log('duration-- resource.duration', resource.duration);
       } else {
         duration = Math.round(endTime - startTime);
-        console.log('duration-- endTime - startTime', resource, endTime, startTime);
       }
 
       opts.onEnd({
@@ -2413,7 +2396,6 @@
         maxWaitForResourceMillis: defaultVars.maxWaitForResourceTimingsMillis,
         maxToleranceForResourceTimingsMillis: defaultVars.maxToleranceForResourceTimingsMillis,
         onEnd: function onEnd(args) {
-          console.log('onEnd-args', args);
           beacon['d'] = args.duration;
 
           if (args.resource) {
@@ -2609,6 +2591,7 @@
     }
 
     var entries = performance$1.getEntriesByType('navigation');
+    console.log('entries-navigation', entries);
 
     for (var _i2 = 0; _i2 < entries.length; _i2++) {
       var _entry = entries[_i2];
@@ -2852,8 +2835,6 @@
   }
 
   function enrich(beacon, opts) {
-    console.log('beacon, opts', beacon, opts);
-
     if (opts['meta']) {
       addMetaDataToBeacon(beacon, opts['meta']);
     }
@@ -2895,7 +2876,9 @@
   }
 
   function drainExistingPerformanceEntries() {
+    console.log('entries-mark', performance$1.getEntriesByType('mark'));
     onUserTimings(performance$1.getEntriesByType('mark'));
+    console.log('entries-measure', performance$1.getEntriesByType('measure'));
     onUserTimings(performance$1.getEntriesByType('measure'));
   }
 
@@ -2906,8 +2889,6 @@
   }
 
   function onUserTiming(performanceEntry) {
-    console.log('performanceEntry', performanceEntry);
-
     if (matchesAny(defaultVars.ignoreUserTimings, performanceEntry.name)) {
       {
         info('Ignoring user timing "%s" because it is ignored via the configuration.', performanceEntry.name);
@@ -3195,7 +3176,6 @@
       }
 
       function onEnd(args) {
-        console.log('onEnd', args);
         beacon['d'] = args.duration;
 
         if (args.resource) {
@@ -3677,8 +3657,6 @@
   }
 
   function addWebVitals(beacon) {
-    console.log('addWebVitals', beacon);
-
     if (W) {
       W(onMetric, {
         reportAllChanges: true
@@ -3704,13 +3682,11 @@
     }
 
     function onMetric(metric) {
-      console.log('onMetric', metric);
       beacon['t_' + metric.name.toLocaleLowerCase()] = Math.round(metric.value);
       reportExtraMetrics(metric);
     }
 
     function onMetricWithoutRounding(metric) {
-      console.log('onMetricWithoutRounding', metric);
       beacon['t_' + metric.name.toLocaleLowerCase()] = metric.value;
       reportExtraMetrics(metric);
     }
