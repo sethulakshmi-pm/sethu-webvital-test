@@ -1513,7 +1513,7 @@
     if (isAutoPageDetectionEnabled()) {
       // uf field will be a comma separated string if more than one use features are supported
       beacon['uf'] = 'sn';
-    } // const timing = performance.getEntriesByType('navigation');
+    } // const timing = performance.getEntriesByType('resource');
 
 
     var timing = performance.timing; // deprecated
@@ -1815,6 +1815,11 @@
     beacon['t_pro'] = timing.loadEventStart - timing.domLoading;
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
+    var internalMeta = {
+      redirectEnd: timing.redirectEnd,
+      redirectStart: timing.redirectStart
+    };
+    addInternalMetaDataToBeacon(beacon, internalMeta);
     addFirstPaintTimings(beacon, start);
   }
 
@@ -2834,7 +2839,15 @@
       't': traceId,
       'ts': now(),
       'n': eventName
+    }; // const timing = performance.getEntriesByType('resource');
+
+    var timing = performance.timing; // deprecated
+
+    var internalMeta = {
+      redirectEnd: timing.redirectEnd,
+      redirectStart: timing.redirectStart
     };
+    addInternalMetaDataToBeacon(beacon, internalMeta);
     addCommonBeaconProperties(beacon);
 
     if (opts) {
