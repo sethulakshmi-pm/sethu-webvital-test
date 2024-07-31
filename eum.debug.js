@@ -1541,15 +1541,18 @@
       // uf field will be a comma separated string if more than one use features are supported
       beacon['uf'] = 'sn';
     } // const timing = performance.getEntriesByType('resource');
+    // const timing = performance.timing; // deprecated
+    // const internalMeta = {
+    //   redirectEnd: timing.redirectEnd,
+    //   redirectStart: timing.redirectStart
+    // };
+    // addInternalMetaDataToBeacon(beacon, internalMeta);
 
 
-    var timing = performance.timing; // deprecated
-
-    var internalMeta = {
-      redirectEnd: timing.redirectEnd,
-      redirectStart: timing.redirectStart
-    };
-    addInternalMetaDataToBeacon(beacon, internalMeta);
+    var internalMeta = sessionStorage.getItem('internalMeta') || '{}';
+    console.log('internalMeta2', internalMeta);
+    var parsedMeta = JSON.parse(internalMeta);
+    addInternalMetaDataToBeacon(beacon, parsedMeta);
   }
 
   function determineLanguages() {
@@ -1849,13 +1852,11 @@
     beacon['t_pro'] = timing.loadEventStart - timing.domLoading;
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
-    addFirstPaintTimings(beacon, start); // const timing = performance.getEntriesByType('resource');
-
-    var internalMeta = {
-      redirectEnd: timing.redirectEnd,
-      redirectStart: timing.redirectStart
-    };
-    addInternalMetaDataToBeacon(beacon, internalMeta);
+    addFirstPaintTimings(beacon, start);
+    var internalMeta = sessionStorage.getItem('internalMeta') || '{}';
+    console.log('internalMeta1', internalMeta);
+    var parsedMeta = JSON.parse(internalMeta);
+    addInternalMetaDataToBeacon(beacon, parsedMeta);
   }
 
   function addFirstPaintTimings(beacon, start) {
