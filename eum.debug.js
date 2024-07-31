@@ -580,7 +580,6 @@
   };
 
   function serializeEntryToArray(entry) {
-    var beacon = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // When timing data is available, we can provide additional information about
     // caching and resource sizes.
 
@@ -647,7 +646,7 @@
         redirectStart: entry['redirectStart']
       }));
 
-      addInternalMetaDataToBeacon(beacon, _internalMeta);
+      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMeta));
     }
 
     var backendTraceId = '';
@@ -709,7 +708,10 @@
     state.ignored = true;
   }
   function addResourceTiming(beacon, resource) {
-    var timings = serializeEntryToArray(resource, beacon);
+    var timings = serializeEntryToArray(resource);
+    var internalMeta = sessionStorage.getItem('internalMeta') || '{}';
+    var parsedMeta = JSON.parse(internalMeta);
+    addInternalMetaDataToBeacon(beacon, parsedMeta);
     beacon['s_ty'] = getTimingValue(timings[3]);
     beacon['s_eb'] = getTimingValue(timings[4]);
     beacon['s_db'] = getTimingValue(timings[5]);
@@ -1568,6 +1570,7 @@
     addMetaDataImpl(beacon, meta);
   }
   function addInternalMetaDataToBeacon(beacon, meta) {
+    console.log('addInternalMetaDataToBeacon--');
     var options = {
       keyPrefix: 'im_',
       maxFields: maximumNumberOfInternalMetaDataFields,
