@@ -411,6 +411,21 @@
     return _typeof(obj);
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
@@ -565,6 +580,7 @@
   };
 
   function serializeEntryToArray(entry) {
+    var beacon = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // When timing data is available, we can provide additional information about
     // caching and resource sizes.
 
@@ -625,6 +641,13 @@
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
+
+      var _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
+        redirectEnd: entry['redirectEnd'],
+        redirectStart: entry['redirectStart']
+      }));
+
+      addInternalMetaDataToBeacon(beacon, _internalMeta);
     }
 
     var backendTraceId = '';
@@ -686,7 +709,7 @@
     state.ignored = true;
   }
   function addResourceTiming(beacon, resource) {
-    var timings = serializeEntryToArray(resource);
+    var timings = serializeEntryToArray(resource, beacon);
     beacon['s_ty'] = getTimingValue(timings[3]);
     beacon['s_eb'] = getTimingValue(timings[4]);
     beacon['s_db'] = getTimingValue(timings[5]);
