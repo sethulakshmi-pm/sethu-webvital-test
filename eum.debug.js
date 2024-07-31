@@ -1097,7 +1097,7 @@
     addCommonBeaconProperties(beacon);
 
     if (internalMeta) {
-      addInternalMetaDataToBeacon$1(beacon, internalMeta);
+      addInternalMetaDataToBeacon(beacon, internalMeta);
     }
 
     sendBeacon$3(beacon);
@@ -1475,6 +1475,8 @@
   var maximumNumberOfInternalMetaDataFields = 128;
   var maximumLengthPerInternalMetaDataField = 1024;
   function addCommonBeaconProperties(beacon) {
+    console.log('addCommonBeaconProperties');
+
     if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
       var _reportingBackend = defaultVars.reportingBackends[0];
       beacon['k'] = _reportingBackend['key'];
@@ -1522,7 +1524,7 @@
       redirectEnd: timing.redirectEnd,
       redirectStart: timing.redirectStart
     };
-    addInternalMetaDataToBeacon$1(beacon, internalMeta);
+    addInternalMetaDataToBeacon(beacon, internalMeta);
   }
 
   function determineLanguages() {
@@ -1542,7 +1544,7 @@
   function addMetaDataToBeacon(beacon, meta) {
     addMetaDataImpl(beacon, meta);
   }
-  function addInternalMetaDataToBeacon$1(beacon, meta) {
+  function addInternalMetaDataToBeacon(beacon, meta) {
     var options = {
       keyPrefix: 'im_',
       maxFields: maximumNumberOfInternalMetaDataFields,
@@ -1732,15 +1734,13 @@
 
       if (_initiatorType !== 'xmlhttprequest' && _initiatorType !== 'fetch' || _entry['startTime'] < defaultVars.highResTimestampReference) {
         trie.addItem(stripSecrets(_url), serializeEntry(_entry));
-      }
+      } // const timing = performance.timing; // deprecated
+      // const internalMeta = {
+      //   redirectEnd: timing.redirectEnd,
+      //   redirectStart: timing.redirectStart
+      // };
+      // addInternalMetaDataToBeacon(beacon, internalMeta);
 
-      var _timing = performance$1.timing; // deprecated
-
-      var _internalMeta = {
-        redirectEnd: _timing.redirectEnd,
-        redirectStart: _timing.redirectStart
-      };
-      addInternalMetaDataToBeacon(beacon, _internalMeta);
     }
 
     return trie.toJs();
@@ -1829,7 +1829,7 @@
       redirectEnd: timing.redirectEnd,
       redirectStart: timing.redirectStart
     };
-    addInternalMetaDataToBeacon$1(beacon, internalMeta);
+    addInternalMetaDataToBeacon(beacon, internalMeta);
   }
 
   function addFirstPaintTimings(beacon, start) {
@@ -1885,18 +1885,18 @@
 
   // Find a way to define all properties beforehand so that flow doesn't complain about missing props.
 
-  var beacon$1 = {
+  var beacon = {
     'ty': 'pl'
   };
   var state$1 = {
     onEnter: function onEnter() {
-      addCommonBeaconProperties(beacon$1);
-      beacon$1['t'] = defaultVars.pageLoadTraceId;
-      beacon$1['bt'] = defaultVars.pageLoadBackendTraceId;
-      beacon$1['u'] = stripSecrets(win.location.href);
-      beacon$1['ph'] = pageLoad;
-      addTimingToPageLoadBeacon(beacon$1);
-      addResourceTimings(beacon$1);
+      addCommonBeaconProperties(beacon);
+      beacon['t'] = defaultVars.pageLoadTraceId;
+      beacon['bt'] = defaultVars.pageLoadBackendTraceId;
+      beacon['u'] = stripSecrets(win.location.href);
+      beacon['ph'] = pageLoad;
+      addTimingToPageLoadBeacon(beacon);
+      addResourceTimings(beacon);
       var beaconSent = false;
 
       if (doc.visibilityState !== 'visible') {
@@ -1914,7 +1914,7 @@
       function sendPageLoadBeacon() {
         if (!beaconSent) {
           beaconSent = true;
-          sendBeacon$3(beacon$1);
+          sendBeacon$3(beacon);
         }
       }
     },
@@ -3761,7 +3761,7 @@
 
 
       try {
-        addWebVitals(beacon$1);
+        addWebVitals(beacon);
       } catch (e) {
         {
           warn('Failed to capture web vitals. Will continue without web vitals', e);
