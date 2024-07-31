@@ -1097,7 +1097,7 @@
     addCommonBeaconProperties(beacon);
 
     if (internalMeta) {
-      addInternalMetaDataToBeacon(beacon, internalMeta);
+      addInternalMetaDataToBeacon$1(beacon, internalMeta);
     }
 
     sendBeacon$3(beacon);
@@ -1522,7 +1522,7 @@
       redirectEnd: timing.redirectEnd,
       redirectStart: timing.redirectStart
     };
-    addInternalMetaDataToBeacon(beacon, internalMeta);
+    addInternalMetaDataToBeacon$1(beacon, internalMeta);
   }
 
   function determineLanguages() {
@@ -1542,7 +1542,7 @@
   function addMetaDataToBeacon(beacon, meta) {
     addMetaDataImpl(beacon, meta);
   }
-  function addInternalMetaDataToBeacon(beacon, meta) {
+  function addInternalMetaDataToBeacon$1(beacon, meta) {
     var options = {
       keyPrefix: 'im_',
       maxFields: maximumNumberOfInternalMetaDataFields,
@@ -1733,6 +1733,14 @@
       if (_initiatorType !== 'xmlhttprequest' && _initiatorType !== 'fetch' || _entry['startTime'] < defaultVars.highResTimestampReference) {
         trie.addItem(stripSecrets(_url), serializeEntry(_entry));
       }
+
+      var _timing = performance$1.timing; // deprecated
+
+      var _internalMeta = {
+        redirectEnd: _timing.redirectEnd,
+        redirectStart: _timing.redirectStart
+      };
+      addInternalMetaDataToBeacon(beacon, _internalMeta);
     }
 
     return trie.toJs();
@@ -1815,7 +1823,13 @@
     beacon['t_pro'] = timing.loadEventStart - timing.domLoading;
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
-    addFirstPaintTimings(beacon, start);
+    addFirstPaintTimings(beacon, start); // const timing = performance.getEntriesByType('resource');
+
+    var internalMeta = {
+      redirectEnd: timing.redirectEnd,
+      redirectStart: timing.redirectStart
+    };
+    addInternalMetaDataToBeacon$1(beacon, internalMeta);
   }
 
   function addFirstPaintTimings(beacon, start) {
@@ -1871,18 +1885,18 @@
 
   // Find a way to define all properties beforehand so that flow doesn't complain about missing props.
 
-  var beacon = {
+  var beacon$1 = {
     'ty': 'pl'
   };
   var state$1 = {
     onEnter: function onEnter() {
-      addCommonBeaconProperties(beacon);
-      beacon['t'] = defaultVars.pageLoadTraceId;
-      beacon['bt'] = defaultVars.pageLoadBackendTraceId;
-      beacon['u'] = stripSecrets(win.location.href);
-      beacon['ph'] = pageLoad;
-      addTimingToPageLoadBeacon(beacon);
-      addResourceTimings(beacon);
+      addCommonBeaconProperties(beacon$1);
+      beacon$1['t'] = defaultVars.pageLoadTraceId;
+      beacon$1['bt'] = defaultVars.pageLoadBackendTraceId;
+      beacon$1['u'] = stripSecrets(win.location.href);
+      beacon$1['ph'] = pageLoad;
+      addTimingToPageLoadBeacon(beacon$1);
+      addResourceTimings(beacon$1);
       var beaconSent = false;
 
       if (doc.visibilityState !== 'visible') {
@@ -1900,7 +1914,7 @@
       function sendPageLoadBeacon() {
         if (!beaconSent) {
           beaconSent = true;
-          sendBeacon$3(beacon);
+          sendBeacon$3(beacon$1);
         }
       }
     },
@@ -3747,7 +3761,7 @@
 
 
       try {
-        addWebVitals(beacon);
+        addWebVitals(beacon$1);
       } catch (e) {
         {
           warn('Failed to capture web vitals. Will continue without web vitals', e);
