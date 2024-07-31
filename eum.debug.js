@@ -1759,6 +1759,7 @@
     }
 
     var timing = performance$1.timing;
+    console.log('timing--', timing);
     var redirectTime = timing.redirectEnd - timing.redirectStart; // We don't use navigationStart since that includes unload times for the previous page.
 
     var start = pageLoadStartTimestamp;
