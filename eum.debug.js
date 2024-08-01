@@ -1722,8 +1722,10 @@
   }
 
   function mapMetaData() {
+    console.log('mapMetaData');
+    var internalMeta;
     performance$1.getEntriesByType('resource').forEach(function (entry) {
-      var internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
+      internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
         domainLookupStart: entry['domainLookupStart'],
@@ -1731,9 +1733,8 @@
         domainLookupEnd: entry['domainLookupEnd'],
         connectEnd: entry['connectEnd']
       }));
-
-      sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
     });
+    sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
   }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
