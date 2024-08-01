@@ -580,8 +580,15 @@
   };
 
   function serializeEntryToArray(entry) {
-    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // When timing data is available, we can provide additional information about
+    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']];
+
+    function generateRandomSixDigitNumber() {
+      var min = 100000;
+      var max = 999999;
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    } // When timing data is available, we can provide additional information about
     // caching and resource sizes.
+
 
     if (typeof entry['transferSize'] === 'number' && typeof entry['encodedBodySize'] === 'number' && // All this information may not be available due to the timing allow origin check.
       entry['encodedBodySize'] > 0) {
@@ -642,7 +649,7 @@
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
       var _internalMeta = {};
       var _internalMetaList = [];
-      _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
+      _internalMeta = _defineProperty({}, generateRandomSixDigitNumber(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
         domainLookupStart: entry['domainLookupStart'],
@@ -1727,12 +1734,18 @@
     }
   }
 
+  function generateRandomSixDigitNumber() {
+    var min = 100000;
+    var max = 999999;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   function mapMetaData() {
     var internalMeta = {};
     var internalMetaList = [];
     performance$1.getEntriesByType('resource').forEach(function (entry) {
       console.log('mapMetaData', entry);
-      internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
+      internalMeta = _defineProperty({}, generateRandomSixDigitNumber(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
         domainLookupStart: entry['domainLookupStart'],
