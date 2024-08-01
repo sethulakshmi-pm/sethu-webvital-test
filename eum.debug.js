@@ -1553,6 +1553,7 @@
     }
 
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    console.log('internalMeta', internalMeta);
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
@@ -1594,8 +1595,8 @@
     var maxFieldsWarningMsg = (options === null || options === void 0 ? void 0 : options.maxFieldsWarningMsg) || 'Maximum number of meta data fields exceeded. Not all meta data fields will be transmitted.';
     var i = 0;
 
-    for (var _key3 in meta) {
-      if (hasOwnProperty(meta, _key3)) {
+    for (var _key2 in meta) {
+      if (hasOwnProperty(meta, _key2)) {
         i++;
 
         if (i > maxFields) {
@@ -1608,27 +1609,27 @@
 
         var _serializedValue = null;
 
-        if (typeof meta[_key3] === 'string') {
-          _serializedValue = meta[_key3];
-        } else if (meta[_key3] === undefined) {
+        if (typeof meta[_key2] === 'string') {
+          _serializedValue = meta[_key2];
+        } else if (meta[_key2] === undefined) {
           _serializedValue = 'undefined';
-        } else if (meta[_key3] === null) {
+        } else if (meta[_key2] === null) {
           _serializedValue = 'null';
         } else if (win.JSON) {
           try {
-            _serializedValue = win.JSON.stringify(meta[_key3]);
+            _serializedValue = win.JSON.stringify(meta[_key2]);
           } catch (e) {
             {
-              warn('JSON serialization of meta data', _key3, meta[_key3], 'failed due to', e, '. This value will not be transmitted.');
+              warn('JSON serialization of meta data', _key2, meta[_key2], 'failed due to', e, '. This value will not be transmitted.');
             }
 
             continue;
           }
         } else {
-          _serializedValue = String(meta[_key3]);
+          _serializedValue = String(meta[_key2]);
         }
 
-        beacon[keyPrefix + _key3] = _serializedValue.substring(0, maxLength);
+        beacon[keyPrefix + _key2] = _serializedValue.substring(0, maxLength);
       }
     }
   }
