@@ -639,15 +639,19 @@
       }
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
-      result.push(calculateTiming(entry['responseEnd'], entry['responseStart'])); // const internalMeta = {
-      //   [Date.now()]: JSON.stringify({
-      //     redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
-      //     domainLookupStart: entry['domainLookupStart'], fetchStart: entry['fetchStart'],
-      //     domainLookupEnd: entry['domainLookupEnd'], connectEnd: entry['connectEnd'],
-      //   })
-      // };
-      // sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
-      // console.log('internalMetaSET', internalMeta);
+      result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
+
+      var _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
+        redirectEnd: entry['redirectEnd'],
+        redirectStart: entry['redirectStart'],
+        domainLookupStart: entry['domainLookupStart'],
+        fetchStart: entry['fetchStart'],
+        domainLookupEnd: entry['domainLookupEnd'],
+        connectEnd: entry['connectEnd']
+      }));
+
+      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMeta));
+      console.log('internalMetaSET', _internalMeta);
     }
 
     var backendTraceId = '';
@@ -1733,8 +1737,8 @@
         domainLookupEnd: entry['domainLookupEnd'],
         connectEnd: entry['connectEnd']
       }));
+      sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
     });
-    sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
   }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
