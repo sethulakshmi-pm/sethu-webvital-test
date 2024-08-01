@@ -643,10 +643,15 @@
 
       var _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
-        redirectStart: entry['redirectStart']
+        redirectStart: entry['redirectStart'],
+        domainLookupStart: entry['domainLookupStart'],
+        fetchStart: entry['fetchStart'],
+        domainLookupEnd: entry['domainLookupEnd'],
+        connectEnd: entry['connectEnd']
       }));
 
       sessionStorage.setItem('internalMeta', JSON.stringify(_internalMeta));
+      console.log('internalMetaSET', _internalMeta);
     }
 
     var backendTraceId = '';
@@ -1550,7 +1555,6 @@
 
 
     var internalMeta = sessionStorage.getItem('internalMeta') || '{}';
-    console.log('internalMeta2', internalMeta);
     var parsedMeta = JSON.parse(internalMeta);
     addInternalMetaDataToBeacon(beacon, parsedMeta);
   }
@@ -1711,14 +1715,19 @@
     console.log('beacon', beacon);
 
     if (!!isResourceTimingAvailable && win.JSON) {
-      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
+      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime); // mapMetaData();
+
 
       console.log('entries-resource', _entries);
       beacon['res'] = win.JSON.stringify(_entries);
     } else {
       info('Resource timing not supported.');
     }
-  }
+  } // function mapMetaData(){
+  //   performance.getEntriesByType('resource').forEach((entry) => {
+  //     // set here
+  //   })
+  // }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
     var trie = createTrie();
