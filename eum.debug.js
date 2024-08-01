@@ -717,7 +717,7 @@
   }
   function addResourceTiming(beacon, resource) {
     var timings = serializeEntryToArray(resource);
-    var internalMeta = sessionStorage.getItem('internalMeta') || '';
+    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
@@ -1552,7 +1552,7 @@
       beacon['uf'] = 'sn';
     }
 
-    var internalMeta = sessionStorage.getItem('internalMeta') || '';
+    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
@@ -1876,7 +1876,7 @@
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
     addFirstPaintTimings(beacon, start);
-    var internalMeta = sessionStorage.getItem('internalMeta') || '';
+    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
