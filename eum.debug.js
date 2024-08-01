@@ -640,9 +640,9 @@
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
+      var _internalMeta = {};
       var _internalMetaList = [];
-
-      var _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
+      _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
         domainLookupStart: entry['domainLookupStart'],
@@ -653,7 +653,7 @@
 
       _internalMetaList.push(_internalMeta);
 
-      sessionStorage.setItem('internalMeta', _internalMetaList);
+      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMetaList));
       console.log('internalMetaSET', _internalMeta);
     }
 
@@ -1552,8 +1552,9 @@
       beacon['uf'] = 'sn';
     }
 
+    console.log('getItem--', sessionStorage.getItem('internalMeta'));
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    console.log('internalMeta', internalMeta);
+    console.log('internalMeta--', internalMeta);
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
@@ -1727,7 +1728,7 @@
   }
 
   function mapMetaData() {
-    var internalMeta;
+    var internalMeta = {};
     var internalMetaList = [];
     performance$1.getEntriesByType('resource').forEach(function (entry) {
       console.log('mapMetaData', entry);
@@ -1742,6 +1743,8 @@
       internalMetaList.push(internalMeta);
     });
     sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+    console.log('###internalMetaList', internalMetaList);
+    console.log('###stringify', JSON.stringify(internalMetaList));
   }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
