@@ -639,19 +639,15 @@
       }
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
-      result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
-
-      var _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
-        redirectEnd: entry['redirectEnd'],
-        redirectStart: entry['redirectStart'],
-        domainLookupStart: entry['domainLookupStart'],
-        fetchStart: entry['fetchStart'],
-        domainLookupEnd: entry['domainLookupEnd'],
-        connectEnd: entry['connectEnd']
-      }));
-
-      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMeta));
-      console.log('internalMetaSET', _internalMeta);
+      result.push(calculateTiming(entry['responseEnd'], entry['responseStart'])); // const internalMeta = {
+      //   [Date.now()]: JSON.stringify({
+      //     redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
+      //     domainLookupStart: entry['domainLookupStart'], fetchStart: entry['fetchStart'],
+      //     domainLookupEnd: entry['domainLookupEnd'], connectEnd: entry['connectEnd'],
+      //   })
+      // };
+      // sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
+      // console.log('internalMetaSET', internalMeta);
     }
 
     var backendTraceId = '';
@@ -1715,19 +1711,30 @@
     console.log('beacon', beacon);
 
     if (!!isResourceTimingAvailable && win.JSON) {
-      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime); // mapMetaData();
+      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
-
+      mapMetaData();
       console.log('entries-resource', _entries);
       beacon['res'] = win.JSON.stringify(_entries);
     } else {
       info('Resource timing not supported.');
     }
-  } // function mapMetaData(){
-  //   performance.getEntriesByType('resource').forEach((entry) => {
-  //     // set here
-  //   })
-  // }
+  }
+
+  function mapMetaData() {
+    performance$1.getEntriesByType('resource').forEach(function (entry) {
+      var internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
+        redirectEnd: entry['redirectEnd'],
+        redirectStart: entry['redirectStart'],
+        domainLookupStart: entry['domainLookupStart'],
+        fetchStart: entry['fetchStart'],
+        domainLookupEnd: entry['domainLookupEnd'],
+        connectEnd: entry['connectEnd']
+      }));
+
+      sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
+    });
+  }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
     var trie = createTrie();
