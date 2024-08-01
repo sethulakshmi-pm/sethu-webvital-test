@@ -640,6 +640,7 @@
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
+      var _internalMetaList = [];
 
       var _internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
@@ -650,7 +651,9 @@
         connectEnd: entry['connectEnd']
       }));
 
-      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMeta));
+      _internalMetaList.push(_internalMeta);
+
+      sessionStorage.setItem('internalMeta', _internalMetaList);
       console.log('internalMetaSET', _internalMeta);
     }
 
@@ -714,9 +717,11 @@
   }
   function addResourceTiming(beacon, resource) {
     var timings = serializeEntryToArray(resource);
-    var internalMeta = sessionStorage.getItem('internalMeta') || '{}';
-    var parsedMeta = JSON.parse(internalMeta);
-    addInternalMetaDataToBeacon(beacon, parsedMeta);
+    var internalMeta = sessionStorage.getItem('internalMeta') || '';
+    var internalMetaList = JSON.parse(internalMeta);
+    internalMetaList.forEach(function (element) {
+      addInternalMetaDataToBeacon(beacon, element);
+    });
     beacon['s_ty'] = getTimingValue(timings[3]);
     beacon['s_eb'] = getTimingValue(timings[4]);
     beacon['s_db'] = getTimingValue(timings[5]);
@@ -1545,18 +1550,13 @@
     if (isAutoPageDetectionEnabled()) {
       // uf field will be a comma separated string if more than one use features are supported
       beacon['uf'] = 'sn';
-    } // const timing = performance.getEntriesByType('resource');
-    // const timing = performance.timing; // deprecated
-    // const internalMeta = {
-    //   redirectEnd: timing.redirectEnd,
-    //   redirectStart: timing.redirectStart
-    // };
-    // addInternalMetaDataToBeacon(beacon, internalMeta);
+    }
 
-
-    var internalMeta = sessionStorage.getItem('internalMeta') || '{}';
-    var parsedMeta = JSON.parse(internalMeta);
-    addInternalMetaDataToBeacon(beacon, parsedMeta);
+    var internalMeta = sessionStorage.getItem('internalMeta') || '';
+    var internalMetaList = JSON.parse(internalMeta);
+    internalMetaList.forEach(function (element) {
+      addInternalMetaDataToBeacon(beacon, element);
+    });
   }
 
   function determineLanguages() {
@@ -1594,8 +1594,8 @@
     var maxFieldsWarningMsg = (options === null || options === void 0 ? void 0 : options.maxFieldsWarningMsg) || 'Maximum number of meta data fields exceeded. Not all meta data fields will be transmitted.';
     var i = 0;
 
-    for (var _key2 in meta) {
-      if (hasOwnProperty(meta, _key2)) {
+    for (var _key3 in meta) {
+      if (hasOwnProperty(meta, _key3)) {
         i++;
 
         if (i > maxFields) {
@@ -1608,27 +1608,27 @@
 
         var _serializedValue = null;
 
-        if (typeof meta[_key2] === 'string') {
-          _serializedValue = meta[_key2];
-        } else if (meta[_key2] === undefined) {
+        if (typeof meta[_key3] === 'string') {
+          _serializedValue = meta[_key3];
+        } else if (meta[_key3] === undefined) {
           _serializedValue = 'undefined';
-        } else if (meta[_key2] === null) {
+        } else if (meta[_key3] === null) {
           _serializedValue = 'null';
         } else if (win.JSON) {
           try {
-            _serializedValue = win.JSON.stringify(meta[_key2]);
+            _serializedValue = win.JSON.stringify(meta[_key3]);
           } catch (e) {
             {
-              warn('JSON serialization of meta data', _key2, meta[_key2], 'failed due to', e, '. This value will not be transmitted.');
+              warn('JSON serialization of meta data', _key3, meta[_key3], 'failed due to', e, '. This value will not be transmitted.');
             }
 
             continue;
           }
         } else {
-          _serializedValue = String(meta[_key2]);
+          _serializedValue = String(meta[_key3]);
         }
 
-        beacon[keyPrefix + _key2] = _serializedValue.substring(0, maxLength);
+        beacon[keyPrefix + _key3] = _serializedValue.substring(0, maxLength);
       }
     }
   }
@@ -1726,9 +1726,10 @@
   }
 
   function mapMetaData() {
-    console.log('mapMetaData');
     var internalMeta;
+    var internalMetaList = [];
     performance$1.getEntriesByType('resource').forEach(function (entry) {
+      console.log('mapMetaData', entry);
       internalMeta = _defineProperty({}, Date.now(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
@@ -1737,8 +1738,9 @@
         domainLookupEnd: entry['domainLookupEnd'],
         connectEnd: entry['connectEnd']
       }));
-      sessionStorage.setItem('internalMeta', JSON.stringify(internalMeta));
+      internalMetaList.push(internalMeta);
     });
+    sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
   }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
@@ -1874,10 +1876,11 @@
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
     addFirstPaintTimings(beacon, start);
-    var internalMeta = sessionStorage.getItem('internalMeta') || '{}';
-    console.log('internalMeta1', internalMeta);
-    var parsedMeta = JSON.parse(internalMeta);
-    addInternalMetaDataToBeacon(beacon, parsedMeta);
+    var internalMeta = sessionStorage.getItem('internalMeta') || '';
+    var internalMetaList = JSON.parse(internalMeta);
+    internalMetaList.forEach(function (element) {
+      addInternalMetaDataToBeacon(beacon, element);
+    });
   }
 
   function addFirstPaintTimings(beacon, start) {
