@@ -701,6 +701,7 @@
     state.ignored = true;
   }
   function addResourceTiming(beacon, resource) {
+    console.log('BEACON UPDATE-xhrHelpers');
     var timings = serializeEntryToArray(resource); // const timings = serializeEntryToArray(resource, beacon);
     // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     // const internalMetaList: [] = JSON.parse(internalMeta);
@@ -776,6 +777,7 @@
     var str = '';
 
     for (var _i2 = 0; _i2 < beacons.length; _i2++) {
+      console.log('BEACON UPDATE-lineEncoding');
       var _beacon = beacons[_i2]; // Multiple beacons are separated by an empty line
 
       str += '\n';
@@ -835,6 +837,8 @@
   }
 
   function transmit() {
+    console.log('BEACON UPDATE-batched');
+
     if (pendingBeaconTransmittingTimeout != null) {
       clearTimeout(pendingBeaconTransmittingTimeout);
       pendingBeaconTransmittingTimeout = null;
@@ -1512,7 +1516,7 @@
   var maximumNumberOfInternalMetaDataFields = 128;
   var maximumLengthPerInternalMetaDataField = 1024;
   function addCommonBeaconProperties(beacon) {
-    console.log('addCommonBeaconProperties');
+    console.log('BEACON UPDATE-commonBeaconProperties');
 
     if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
       var _reportingBackend = defaultVars.reportingBackends[0];
@@ -1715,6 +1719,7 @@
   // See https://www.w3.org/TR/hr-time/
 
   function addResourceTimings(beacon, minStartTime) {
+    console.log('BEACON UPDATE-resources');
     console.log('beacon', beacon);
 
     if (!!isResourceTimingAvailable && win.JSON) {
@@ -1817,6 +1822,8 @@
   }
 
   function addTimingToPageLoadBeacon(beacon) {
+    console.log('BEACON UPDATE-timings');
+
     if (!isTimingAvailable) {
       // This is our absolute fallback mode where we only have
       // approximations for speed information.
@@ -1946,6 +1953,7 @@
   };
   var state$1 = {
     onEnter: function onEnter() {
+      console.log('BEACON UPDATE-pageLoaded');
       addCommonBeaconProperties(beacon);
       beacon['t'] = defaultVars.pageLoadTraceId;
       beacon['bt'] = defaultVars.pageLoadBackendTraceId;
@@ -2064,6 +2072,7 @@
     var trackedError = seenErrors[key];
 
     if (trackedError) {
+      console.log('BEACON UPDATE-unhandledError');
       trackedError.seenCount++;
       trackedError.beacon['c'] = trackedError.seenCount - trackedError.transmittedCount;
     } else {
@@ -2643,6 +2652,7 @@
     };
   }
   function captureHttpHeaders(beacon, headerString) {
+    console.log('BEACON UPDATE-XMLHttpRequest');
     var lines = headerString.trim().split(/[\r\n]+/);
 
     var _iterator = _createForOfIteratorHelper(lines),
@@ -2915,6 +2925,8 @@
   }
 
   function enrich(beacon, opts) {
+    console.log('BEACON UPDATE-custom events');
+
     if (opts['meta']) {
       addMetaDataToBeacon(beacon, opts['meta']);
     }
@@ -3180,6 +3192,7 @@
       addGraphQlProperties(beacon, input, copyInit);
       var spanAndTraceId = generateUniqueId();
       var setBackendCorrelationHeaders = isSameOrigin(url) || isAllowedOrigin(url);
+      console.log('BEACON UPDATE-Fetch');
       beacon['t'] = spanAndTraceId;
       beacon['s'] = spanAndTraceId;
       beacon['m'] = request.method;
