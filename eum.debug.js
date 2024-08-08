@@ -411,21 +411,6 @@
     return _typeof(obj);
   }
 
-  function _defineProperty(obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-
-    return obj;
-  }
-
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
@@ -643,22 +628,18 @@
       }
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
-      result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
-      var _internalMeta = {};
-      var _internalMetaList = [];
-      _internalMeta = _defineProperty({}, generateRandomSixDigitNumber(), JSON.stringify({
-        redirectEnd: entry['redirectEnd'],
-        redirectStart: entry['redirectStart'],
-        domainLookupStart: entry['domainLookupStart'],
-        fetchStart: entry['fetchStart'],
-        domainLookupEnd: entry['domainLookupEnd'],
-        connectEnd: entry['connectEnd']
-      }));
-
-      _internalMetaList.push(_internalMeta);
-
-      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMetaList));
-      console.log('internalMetaSET', _internalMeta);
+      result.push(calculateTiming(entry['responseEnd'], entry['responseStart'])); // let internalMeta = {};
+      // const internalMetaList: { [key: number]: string }[] = [];
+      // internalMeta = {
+      //   [generateRandomSixDigitNumber()]: JSON.stringify({
+      //     redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
+      //     domainLookupStart: entry['domainLookupStart'], fetchStart: entry['fetchStart'],
+      //     domainLookupEnd: entry['domainLookupEnd'], connectEnd: entry['connectEnd'],
+      //   })
+      // };
+      // internalMetaList.push(internalMeta);
+      // sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+      // console.log('internalMetaSET', internalMeta);
     }
 
     var backendTraceId = '';
