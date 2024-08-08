@@ -1326,7 +1326,7 @@
     wrapHistoryMethods();
     win.addEventListener('hashchange', function (event) {
       {
-        info("hashchange to ".concat(event.newURL, " from ").concat(event.newURL, ", current location ").concat(win.location));
+        info("hashchange to ".concat(event.newURL, " from ").concat(event.oldURL, ", current location ").concat(win.location));
       }
 
       handlePossibleUrlChange(event.newURL);
@@ -1435,7 +1435,7 @@
 
   function applyCustomPageMappings(urlPath) {
     var rules = getAutoPageDetectionMappingRule();
-    var effectivePath = (titleAsPageNameInAutoPageDetectio() ? doc.title : urlPath) || urlPath;
+    var effectivePath = (titleAsPageNameInAutoPageDetection() ? doc.title : urlPath) || urlPath;
 
     if (!effectivePath || !rules.length) {
       return effectivePath;
@@ -1487,14 +1487,12 @@
   function isAutoPageDetectionEnabled() {
     return !!defaultVars.autoPageDetection;
   }
-
   function ignorePopstateEvent() {
     var _vars$autoPageDetecti;
 
     return _typeof(defaultVars.autoPageDetection) === 'object' && !!((_vars$autoPageDetecti = defaultVars.autoPageDetection) !== null && _vars$autoPageDetecti !== void 0 && _vars$autoPageDetecti.ignorePopstateEvent);
   }
-
-  function titleAsPageNameInAutoPageDetectio() {
+  function titleAsPageNameInAutoPageDetection() {
     var _vars$autoPageDetecti2;
 
     return _typeof(defaultVars.autoPageDetection) === 'object' && !!((_vars$autoPageDetecti2 = defaultVars.autoPageDetection) !== null && _vars$autoPageDetecti2 !== void 0 && _vars$autoPageDetecti2.titleAsPageName);
@@ -1508,6 +1506,24 @@
     }
 
     return defaultVars.autoPageDetection.mappingRule;
+  }
+
+  function processAutoPageDetectionCommand(input) {
+    var guessCmd = input;
+
+    if (!guessCmd) {
+      return false;
+    }
+
+    if (_typeof(guessCmd) !== 'object') {
+      return !!guessCmd;
+    }
+
+    return {
+      ignorePopstateEvent: guessCmd['ignorePopstateEvent'],
+      titleAsPageName: guessCmd['titleAsPageName'],
+      mappingRule: guessCmd['mappingRule']
+    };
   }
 
   var maximumNumberOfMetaDataFields = 25;
@@ -3528,7 +3544,7 @@
         break;
 
       case 'autoPageDetection':
-        defaultVars.autoPageDetection = command[1];
+        defaultVars.autoPageDetection = processAutoPageDetectionCommand(command[1]);
         break;
 
       case 'wrapTimers':
