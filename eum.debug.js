@@ -411,6 +411,21 @@
     return _typeof(obj);
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
@@ -565,7 +580,11 @@
   };
 
   function serializeEntryToArray(entry) {
-    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // When timing data is available, we can provide additional information about
+    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // function generateRandomSixDigitNumber() {
+    //   const min = 100000; const max = 999999;
+    //   return Math.floor(Math.random() * (max - min + 1)) + min;
+    // }
+    // When timing data is available, we can provide additional information about
     // caching and resource sizes.
 
     if (typeof entry['transferSize'] === 'number' && typeof entry['encodedBodySize'] === 'number' && // All this information may not be available due to the timing allow origin check.
@@ -625,6 +644,21 @@
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
+      var _internalMeta = {};
+      var _internalMetaList = [];
+      _internalMeta = _defineProperty({}, generateRandomSixDigitNumber(), JSON.stringify({
+        redirectEnd: entry['redirectEnd'],
+        redirectStart: entry['redirectStart'],
+        domainLookupStart: entry['domainLookupStart'],
+        fetchStart: entry['fetchStart'],
+        domainLookupEnd: entry['domainLookupEnd'],
+        connectEnd: entry['connectEnd']
+      }));
+
+      _internalMetaList.push(_internalMeta);
+
+      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMetaList));
+      console.log('internalMetaSET', _internalMeta);
     }
 
     var backendTraceId = '';
@@ -686,7 +720,13 @@
     state.ignored = true;
   }
   function addResourceTiming(beacon, resource) {
-    var timings = serializeEntryToArray(resource);
+    var timings = serializeEntryToArray(resource); // const timings = serializeEntryToArray(resource, beacon);
+    // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    // const internalMetaList: [] = JSON.parse(internalMeta);
+    // internalMetaList.forEach(element => {
+    //   addInternalMetaDataToBeacon(beacon, element);
+    // });
+
     beacon['s_ty'] = getTimingValue(timings[3]);
     beacon['s_eb'] = getTimingValue(timings[4]);
     beacon['s_db'] = getTimingValue(timings[5]);
@@ -1491,6 +1531,8 @@
   var maximumNumberOfInternalMetaDataFields = 128;
   var maximumLengthPerInternalMetaDataField = 1024;
   function addCommonBeaconProperties(beacon) {
+    console.log('addCommonBeaconProperties');
+
     if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
       var _reportingBackend = defaultVars.reportingBackends[0];
       beacon['k'] = _reportingBackend['key'];
@@ -1530,6 +1572,13 @@
       // uf field will be a comma separated string if more than one use features are supported
       beacon['uf'] = 'sn';
     }
+
+    console.log('getItem--', sessionStorage.getItem('internalMeta')); // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    // console.log('internalMeta--', internalMeta);
+    // const internalMetaList: [] = JSON.parse(internalMeta);
+    // internalMetaList.forEach(element => {
+    //   addInternalMetaDataToBeacon(beacon, element);
+    // });
   }
 
   function determineLanguages() {
@@ -1550,6 +1599,7 @@
     addMetaDataImpl(beacon, meta);
   }
   function addInternalMetaDataToBeacon(beacon, meta) {
+    console.log('addInternalMetaDataToBeacon--');
     var options = {
       keyPrefix: 'im_',
       maxFields: maximumNumberOfInternalMetaDataFields,
@@ -1684,14 +1734,39 @@
   // See https://www.w3.org/TR/hr-time/
 
   function addResourceTimings(beacon, minStartTime) {
-    if (!!isResourceTimingAvailable && win.JSON) {
-      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
+    console.log('beacon', beacon);
 
+    if (!!isResourceTimingAvailable && win.JSON) {
+      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime); // mapMetaData();
+
+
+      console.log('entries-resource', _entries);
       beacon['res'] = win.JSON.stringify(_entries);
     } else {
       info('Resource timing not supported.');
     }
-  }
+  } // function generateRandomSixDigitNumber() {
+  //   const min = 100000; const max = 999999;
+  //   return Math.floor(Math.random() * (max - min + 1)) + min;
+  // }
+  // function mapMetaData() {
+  //   let internalMeta={};
+  //   const internalMetaList: { [key: number]: string }[] = [];
+  //   performance.getEntriesByType('resource').forEach((entry) => {
+  //     console.log('mapMetaData', entry);
+  //     internalMeta = {
+  //       [generateRandomSixDigitNumber()]: JSON.stringify({
+  //         redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
+  //         domainLookupStart: entry['domainLookupStart'], fetchStart: entry['fetchStart'],
+  //         domainLookupEnd: entry['domainLookupEnd'], connectEnd: entry['connectEnd'],
+  //       })
+  //     };
+  //     internalMetaList.push(internalMeta);
+  //   });
+  //   sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+  //   console.log('###internalMetaList', internalMetaList);
+  //   console.log('###stringify', JSON.stringify(internalMetaList));
+  // }
 
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
     var trie = createTrie();
@@ -1736,7 +1811,13 @@
 
       if (_initiatorType !== 'xmlhttprequest' && _initiatorType !== 'fetch' || _entry['startTime'] < defaultVars.highResTimestampReference) {
         trie.addItem(stripSecrets(_url), serializeEntry(_entry));
-      }
+      } // const timing = performance.timing; // deprecated
+      // const internalMeta = {
+      //   redirectEnd: timing.redirectEnd,
+      //   redirectStart: timing.redirectStart
+      // };
+      // addInternalMetaDataToBeacon(beacon, internalMeta);
+
     }
 
     return trie.toJs();
@@ -1772,6 +1853,7 @@
     }
 
     var timing = performance$1.timing;
+    console.log('timing--', timing);
     var redirectTime = timing.redirectEnd - timing.redirectStart; // We don't use navigationStart since that includes unload times for the previous page.
 
     var start = pageLoadStartTimestamp;
@@ -1818,7 +1900,11 @@
     beacon['t_pro'] = timing.loadEventStart - timing.domLoading;
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
-    addFirstPaintTimings(beacon, start);
+    addFirstPaintTimings(beacon, start); // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    // const internalMetaList: [] = JSON.parse(internalMeta);
+    // internalMetaList.forEach(element => {
+    //   addInternalMetaDataToBeacon(beacon, element);
+    // });
   }
 
   function addFirstPaintTimings(beacon, start) {
@@ -1828,6 +1914,7 @@
     }
 
     var paintTimings = performance$1.getEntriesByType('paint');
+    console.log('entries-paint', paintTimings);
     var firstPaintFound = false;
 
     for (var _i2 = 0; _i2 < paintTimings.length; _i2++) {
@@ -2603,6 +2690,7 @@
     }
 
     var entries = performance$1.getEntriesByType('navigation');
+    console.log('entries-navigation', entries);
 
     for (var _i2 = 0; _i2 < entries.length; _i2++) {
       var _entry = entries[_i2];
@@ -2887,7 +2975,9 @@
   }
 
   function drainExistingPerformanceEntries() {
+    console.log('entries-mark', performance$1.getEntriesByType('mark'));
     onUserTimings(performance$1.getEntriesByType('mark'));
+    console.log('entries-measure', performance$1.getEntriesByType('measure'));
     onUserTimings(performance$1.getEntriesByType('measure'));
   }
 
