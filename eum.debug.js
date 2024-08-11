@@ -2914,6 +2914,8 @@
     maxCallsPerTenSeconds: 32
   });
   function reportCustomEvent(eventName, opts) {
+    console.log('###', opts);
+
     if (isExcessiveUsage$3()) {
       {
         info('Reached the maximum number of custom events to monitor');
