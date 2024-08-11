@@ -2947,7 +2947,7 @@
   }
 
   function enrich(beacon, opts) {
-    console.log('BEACON UPDATE-custom events');
+    console.log('BEACON UPDATE-custom events', opts);
 
     if (opts['meta']) {
       addMetaDataToBeacon(beacon, opts['meta']);
