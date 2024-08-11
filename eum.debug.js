@@ -727,7 +727,7 @@
     var timings = serializeEntryToArray(resource);
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList.forEach(function (element) {
+    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
     });
     beacon['s_ty'] = getTimingValue(timings[3]);
@@ -1912,7 +1912,7 @@
     addFirstPaintTimings(beacon, start);
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList.forEach(function (element) {
+    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
     });
   }
