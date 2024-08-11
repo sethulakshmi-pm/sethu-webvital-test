@@ -726,7 +726,9 @@
     console.log('BEACON UPDATE-xhrHelpers');
     var timings = serializeEntryToArray(resource);
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    console.log('IIII', internalMeta);
     var internalMetaList = JSON.parse(internalMeta);
+    console.log('IIII', internalMetaList);
     internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
     });
@@ -1757,9 +1759,11 @@
   }
 
   function mapMetaData() {
+    var _performance$getEntri;
+
     var internalMeta = {};
     var internalMetaList = [];
-    performance$1.getEntriesByType('resource').forEach(function (entry) {
+    (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
       internalMeta = _defineProperty({}, generateRandomSixDigitNumber(), JSON.stringify({
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
