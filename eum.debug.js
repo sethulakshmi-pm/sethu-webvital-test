@@ -1912,12 +1912,11 @@
     beacon['t_pro'] = timing.loadEventStart - timing.domLoading;
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
-    addFirstPaintTimings(beacon, start);
-    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
-      addInternalMetaDataToBeacon(beacon, element);
-    });
+    addFirstPaintTimings(beacon, start); // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    // const internalMetaList: [] = JSON.parse(internalMeta);
+    // internalMetaList?.forEach(element => {
+    //   addInternalMetaDataToBeacon(beacon, element);
+    // });
   }
 
   function addFirstPaintTimings(beacon, start) {
