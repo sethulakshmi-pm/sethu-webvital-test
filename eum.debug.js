@@ -1579,12 +1579,13 @@
     if (isAutoPageDetectionEnabled()) {
       // uf field will be a comma separated string if more than one use features are supported
       beacon['uf'] = 'sn';
-    } // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    // const internalMetaList: [] = JSON.parse(internalMeta);
-    // internalMetaList?.forEach(element => {
-    //   addInternalMetaDataToBeacon(beacon, element);
-    // });
+    }
 
+    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    var internalMetaList = JSON.parse(internalMeta);
+    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+      addInternalMetaDataToBeacon(beacon, element);
+    });
   }
 
   function determineLanguages() {
@@ -1912,11 +1913,12 @@
     beacon['t_pro'] = timing.loadEventStart - timing.domLoading;
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
-    addFirstPaintTimings(beacon, start); // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    // const internalMetaList: [] = JSON.parse(internalMeta);
-    // internalMetaList?.forEach(element => {
-    //   addInternalMetaDataToBeacon(beacon, element);
-    // });
+    addFirstPaintTimings(beacon, start);
+    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    var internalMetaList = JSON.parse(internalMeta);
+    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+      addInternalMetaDataToBeacon(beacon, element);
+    });
   }
 
   function addFirstPaintTimings(beacon, start) {
