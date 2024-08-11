@@ -1581,7 +1581,7 @@
 
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList.forEach(function (element) {
+    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
       addInternalMetaDataToBeacon(beacon, element);
     });
   }
