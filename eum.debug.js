@@ -1579,13 +1579,12 @@
     if (isAutoPageDetectionEnabled()) {
       // uf field will be a comma separated string if more than one use features are supported
       beacon['uf'] = 'sn';
-    }
+    } // const internalMeta = sessionStorage.getItem('internalMeta') || '[]';
+    // const internalMetaList: [] = JSON.parse(internalMeta);
+    // internalMetaList?.forEach(element => {
+    //   addInternalMetaDataToBeacon(beacon, element);
+    // });
 
-    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
-      addInternalMetaDataToBeacon(beacon, element);
-    });
   }
 
   function determineLanguages() {
