@@ -730,6 +730,7 @@
     var internalMetaList = JSON.parse(internalMeta);
     console.log('IIII', internalMetaList);
     internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+      console.log('$$$$', element);
       addInternalMetaDataToBeacon(beacon, element);
     });
     beacon['s_ty'] = getTimingValue(timings[3]);
@@ -1584,6 +1585,7 @@
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+      console.log('@@@@', element);
       addInternalMetaDataToBeacon(beacon, element);
     });
   }
@@ -1917,6 +1919,7 @@
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+      console.log('###', element);
       addInternalMetaDataToBeacon(beacon, element);
     });
   }
