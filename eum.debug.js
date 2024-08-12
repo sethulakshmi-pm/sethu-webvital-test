@@ -740,12 +740,9 @@
     console.log('BEACON UPDATE-xhrHelpers');
     var timings = serializeEntryToArray(resource);
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    console.log('IIII', internalMeta);
     var internalMetaList = JSON.parse(internalMeta);
-    console.log('IIII', internalMetaList);
     internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
-      console.log('$$$$', element);
-      addInternalMetaDataToBeacon(beacon, element);
+      return addInternalMetaDataToBeacon(beacon, element);
     });
     beacon['s_ty'] = getTimingValue(timings[3]);
     beacon['s_eb'] = getTimingValue(timings[4]);
@@ -1554,7 +1551,7 @@
   var maximumNumberOfInternalMetaDataFields = 128;
   var maximumLengthPerInternalMetaDataField = 1024;
   function addCommonBeaconProperties(beacon) {
-    console.log('BEACON UPDATE-commonBeaconProperties');
+    console.log('BEACON UPDATE-commonBeaconProperties-get');
 
     if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
       var _reportingBackend = defaultVars.reportingBackends[0];
@@ -1599,8 +1596,7 @@
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
-      console.log('@@@@', element);
-      addInternalMetaDataToBeacon(beacon, element);
+      return addInternalMetaDataToBeacon(beacon, element);
     });
   }
 
@@ -1759,7 +1755,7 @@
     console.log('BEACON UPDATE-resources');
 
     if (!!isResourceTimingAvailable && win.JSON) {
-      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime, beacon);
+      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
       mapMetaData();
       beacon['res'] = win.JSON.stringify(_entries);
@@ -1848,14 +1844,6 @@
       if (_initiatorType !== 'xmlhttprequest' && _initiatorType !== 'fetch' || _entry['startTime'] < defaultVars.highResTimestampReference) {
         trie.addItem(stripSecrets(_url), serializeEntry(_entry));
       }
-
-      var _timing = performance$1.timing; // deprecated
-
-      var _internalMeta2 = {
-        redirectEnd: _timing.redirectEnd,
-        redirectStart: _timing.redirectStart
-      };
-      addInternalMetaDataToBeacon(beacon, _internalMeta2);
     }
 
     return trie.toJs();
@@ -1944,8 +1932,7 @@
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
     internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
-      console.log('###', element);
-      addInternalMetaDataToBeacon(beacon, element);
+      return addInternalMetaDataToBeacon(beacon, element);
     });
   }
 
@@ -2944,8 +2931,6 @@
     maxCallsPerTenSeconds: 32
   });
   function reportCustomEvent(eventName, opts) {
-    console.log('###', opts);
-
     if (isExcessiveUsage$3()) {
       {
         info('Reached the maximum number of custom events to monitor');
