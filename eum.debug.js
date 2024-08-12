@@ -1780,13 +1780,24 @@
     var internalMeta = {};
     var internalMetaList = [];
     (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
-      internalMeta = _defineProperty({}, generateRandomSixDigitNumber(), JSON.stringify({
+      var key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
+      internalMeta = _defineProperty({}, key, JSON.stringify({
+        connectEnd: entry['connectEnd'],
+        connectStart: entry['connectStart'],
+        domainLookupEnd: entry['domainLookupEnd'],
+        domainLookupStart: entry['domainLookupStart'],
+        duration: entry['duration'],
+        entryType: entry['entryType'],
+        fetchStart: entry['fetchStart'],
+        initiatorType: entry['initiatorType'],
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
-        domainLookupStart: entry['domainLookupStart'],
-        fetchStart: entry['fetchStart'],
-        domainLookupEnd: entry['domainLookupEnd'],
-        connectEnd: entry['connectEnd']
+        requestStart: entry['requestStart'],
+        responseEnd: entry['responseEnd'],
+        responseStart: entry['responseStart'],
+        secureConnectionStart: entry['secureConnectionStart'],
+        startTime: entry['startTime'],
+        transferSize: entry['transferSize']
       }));
       internalMetaList.push(internalMeta);
     });
