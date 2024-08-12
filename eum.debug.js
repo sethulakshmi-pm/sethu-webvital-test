@@ -650,13 +650,26 @@
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
       var _internalMeta = {};
       var _internalMetaList = [];
-      _internalMeta = _defineProperty({}, generateRandomSixDigitNumber(), JSON.stringify({
+
+      var _key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
+
+      _internalMeta = _defineProperty({}, _key, JSON.stringify({
+        connectEnd: entry['connectEnd'],
+        connectStart: entry['connectStart'],
+        domainLookupEnd: entry['domainLookupEnd'],
+        domainLookupStart: entry['domainLookupStart'],
+        duration: entry['duration'],
+        entryType: entry['entryType'],
+        fetchStart: entry['fetchStart'],
+        initiatorType: entry['initiatorType'],
         redirectEnd: entry['redirectEnd'],
         redirectStart: entry['redirectStart'],
-        domainLookupStart: entry['domainLookupStart'],
-        fetchStart: entry['fetchStart'],
-        domainLookupEnd: entry['domainLookupEnd'],
-        connectEnd: entry['connectEnd']
+        requestStart: entry['requestStart'],
+        responseEnd: entry['responseEnd'],
+        responseStart: entry['responseStart'],
+        secureConnectionStart: entry['secureConnectionStart'],
+        startTime: entry['startTime'],
+        transferSize: entry['transferSize']
       }));
 
       _internalMetaList.push(_internalMeta);
