@@ -580,6 +580,7 @@
   };
 
   function serializeEntryToArray(entry) {
+    console.log('ENTRY', entry);
     var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']];
 
     function generateRandomSixDigitNumber() {
