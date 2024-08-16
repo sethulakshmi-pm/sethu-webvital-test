@@ -93,6 +93,11 @@
 
     return false;
   }
+  function generateRandomSixDigitNumber() {
+    var min = 100000;
+    var max = 999999;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
   var log = createLogger('log');
   var info = createLogger('info');
@@ -581,11 +586,7 @@
   };
 
   function serializeEntryToArray(entry) {
-    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // function generateRandomSixDigitNumber() {
-    //   const min = 100000; const max = 999999;
-    //   return Math.floor(Math.random() * (max - min + 1)) + min;
-    // }
-    // When timing data is available, we can provide additional information about
+    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // When timing data is available, we can provide additional information about
     // caching and resource sizes.
 
     if (typeof entry['transferSize'] === 'number' && typeof entry['encodedBodySize'] === 'number' && // All this information may not be available due to the timing allow origin check.
@@ -648,7 +649,7 @@
       var _internalMeta = {};
       var _internalMetaList = [];
 
-      var _key = "".concat(entry['name'], "_").concat(generateUniqueId());
+      var _key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
 
       _internalMeta = _defineProperty({}, _key, JSON.stringify({
         connectEnd: entry['connectEnd'],
@@ -1751,10 +1752,7 @@
     } else {
       info('Resource timing not supported.');
     }
-  } // function generateRandomSixDigitNumber() {
-  //   const min = 100000; const max = 999999;
-  //   return Math.floor(Math.random() * (max - min + 1)) + min;
-  // }
+  }
 
   function mapMetaData() {
     var _performance$getEntri;
@@ -1762,7 +1760,7 @@
     var internalMeta = {};
     var internalMetaList = [];
     (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
-      var key = "".concat(entry['name'], "_").concat(generateUniqueId());
+      var key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
       internalMeta = _defineProperty({}, key, JSON.stringify({
         connectEnd: entry['connectEnd'],
         connectStart: entry['connectStart'],
@@ -1786,7 +1784,7 @@
     sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
   }
 
-  function getEntriesTransferFormat(performanceEntries, minStartTime, beacon) {
+  function getEntriesTransferFormat(performanceEntries, minStartTime) {
     var trie = createTrie();
 
     for (var _i2 = 0, _len2 = performanceEntries.length; _i2 < _len2; _i2++) {
