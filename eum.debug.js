@@ -257,7 +257,8 @@
   }
 
   var performance$1 = win.performance || win.webkitPerformance || win.msPerformance || win.mozPerformance;
-  var isTimingAvailable = !!(performance$1 && performance$1.timing);
+  var isTimingAvailable = !!(performance$1 && performance$1.timing); // export const isTimingAvailable = !!(performance && performance.getEntriesByType('navigation'));
+
   var isResourceTimingAvailable = !!(performance$1 && performance$1.getEntriesByType);
   var isPerformanceObserverAvailable = performance$1 && typeof win['PerformanceObserver'] === 'function' && typeof performance$1['now'] === 'function';
 
@@ -580,16 +581,12 @@
   };
 
   function serializeEntryToArray(entry) {
-    console.log('ENTRY', entry);
-    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']];
-
-    function generateRandomSixDigitNumber() {
-      var min = 100000;
-      var max = 999999;
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    } // When timing data is available, we can provide additional information about
+    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // function generateRandomSixDigitNumber() {
+    //   const min = 100000; const max = 999999;
+    //   return Math.floor(Math.random() * (max - min + 1)) + min;
+    // }
+    // When timing data is available, we can provide additional information about
     // caching and resource sizes.
-
 
     if (typeof entry['transferSize'] === 'number' && typeof entry['encodedBodySize'] === 'number' && // All this information may not be available due to the timing allow origin check.
       entry['encodedBodySize'] > 0) {
@@ -651,7 +648,7 @@
       var _internalMeta = {};
       var _internalMetaList = [];
 
-      var _key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
+      var _key = "".concat(entry['name'], "_").concat(generateUniqueId());
 
       _internalMeta = _defineProperty({}, _key, JSON.stringify({
         connectEnd: entry['connectEnd'],
@@ -737,7 +734,6 @@
     state.ignored = true;
   }
   function addResourceTiming(beacon, resource) {
-    console.log('BEACON UPDATE-xhrHelpers');
     var timings = serializeEntryToArray(resource);
     var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
     var internalMetaList = JSON.parse(internalMeta);
@@ -812,7 +808,6 @@
     var str = '';
 
     for (var _i2 = 0; _i2 < beacons.length; _i2++) {
-      console.log('BEACON UPDATE-lineEncoding');
       var _beacon = beacons[_i2]; // Multiple beacons are separated by an empty line
 
       str += '\n';
@@ -872,8 +867,6 @@
   }
 
   function transmit() {
-    console.log('BEACON UPDATE-batched');
-
     if (pendingBeaconTransmittingTimeout != null) {
       clearTimeout(pendingBeaconTransmittingTimeout);
       pendingBeaconTransmittingTimeout = null;
@@ -1551,8 +1544,6 @@
   var maximumNumberOfInternalMetaDataFields = 128;
   var maximumLengthPerInternalMetaDataField = 1024;
   function addCommonBeaconProperties(beacon) {
-    console.log('BEACON UPDATE-commonBeaconProperties-get');
-
     if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
       var _reportingBackend = defaultVars.reportingBackends[0];
       beacon['k'] = _reportingBackend['key'];
@@ -1752,8 +1743,6 @@
   // See https://www.w3.org/TR/hr-time/
 
   function addResourceTimings(beacon, minStartTime) {
-    console.log('BEACON UPDATE-resources');
-
     if (!!isResourceTimingAvailable && win.JSON) {
       var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
@@ -1762,13 +1751,10 @@
     } else {
       info('Resource timing not supported.');
     }
-  }
-
-  function generateRandomSixDigitNumber() {
-    var min = 100000;
-    var max = 999999;
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+  } // function generateRandomSixDigitNumber() {
+  //   const min = 100000; const max = 999999;
+  //   return Math.floor(Math.random() * (max - min + 1)) + min;
+  // }
 
   function mapMetaData() {
     var _performance$getEntri;
@@ -1776,7 +1762,7 @@
     var internalMeta = {};
     var internalMetaList = [];
     (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
-      var key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
+      var key = "".concat(entry['name'], "_").concat(generateUniqueId());
       internalMeta = _defineProperty({}, key, JSON.stringify({
         connectEnd: entry['connectEnd'],
         connectStart: entry['connectStart'],
@@ -1862,8 +1848,6 @@
   }
 
   function addTimingToPageLoadBeacon(beacon) {
-    console.log('BEACON UPDATE-timings');
-
     if (!isTimingAvailable) {
       // This is our absolute fallback mode where we only have
       // approximations for speed information.
@@ -1881,7 +1865,6 @@
     }
 
     var timing = performance$1.timing;
-    console.log('timing--', timing);
     var redirectTime = timing.redirectEnd - timing.redirectStart; // We don't use navigationStart since that includes unload times for the previous page.
 
     var start = pageLoadStartTimestamp;
@@ -1993,7 +1976,6 @@
   };
   var state$1 = {
     onEnter: function onEnter() {
-      console.log('BEACON UPDATE-pageLoaded');
       addCommonBeaconProperties(beacon);
       beacon['t'] = defaultVars.pageLoadTraceId;
       beacon['bt'] = defaultVars.pageLoadBackendTraceId;
@@ -2112,7 +2094,6 @@
     var trackedError = seenErrors[key];
 
     if (trackedError) {
-      console.log('BEACON UPDATE-unhandledError');
       trackedError.seenCount++;
       trackedError.beacon['c'] = trackedError.seenCount - trackedError.transmittedCount;
     } else {
@@ -2692,7 +2673,6 @@
     };
   }
   function captureHttpHeaders(beacon, headerString) {
-    console.log('BEACON UPDATE-XMLHttpRequest');
     var lines = headerString.trim().split(/[\r\n]+/);
 
     var _iterator = _createForOfIteratorHelper(lines),
@@ -2964,8 +2944,6 @@
   }
 
   function enrich(beacon, opts) {
-    console.log('BEACON UPDATE-custom events', opts);
-
     if (opts['meta']) {
       addMetaDataToBeacon(beacon, opts['meta']);
     }
@@ -3229,7 +3207,6 @@
       addGraphQlProperties(beacon, input, copyInit);
       var spanAndTraceId = generateUniqueId();
       var setBackendCorrelationHeaders = isSameOrigin(url) || isAllowedOrigin(url);
-      console.log('BEACON UPDATE-Fetch');
       beacon['t'] = spanAndTraceId;
       beacon['s'] = spanAndTraceId;
       beacon['m'] = request.method;
