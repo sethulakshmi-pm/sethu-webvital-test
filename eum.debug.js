@@ -262,8 +262,10 @@
   }
 
   var performance$1 = win.performance || win.webkitPerformance || win.msPerformance || win.mozPerformance;
-  var isTimingAvailable = !!(performance$1 && performance$1.timing); // export const isTimingAvailable = !!(performance && performance.getEntriesByType('navigation'));
-
+  var isTimingAvailable = !!(performance$1 && performance$1.timing);
+  console.log('performance.timing', isTimingAvailable);
+  var isTimingAvailableNav = !!(performance$1 && performance$1.getEntriesByType('navigation'));
+  console.log('performance.getEntriesByType.navigation', isTimingAvailableNav);
   var isResourceTimingAvailable = !!(performance$1 && performance$1.getEntriesByType);
   var isPerformanceObserverAvailable = performance$1 && typeof win['PerformanceObserver'] === 'function' && typeof performance$1['now'] === 'function';
 
@@ -1846,6 +1848,9 @@
   }
 
   function addTimingToPageLoadBeacon(beacon) {
+    console.log('AAAisTimingAvailable', isTimingAvailable);
+    console.log('BBBisTimingAvailableNav', isTimingAvailableNav);
+
     if (!isTimingAvailable) {
       // This is our absolute fallback mode where we only have
       // approximations for speed information.
