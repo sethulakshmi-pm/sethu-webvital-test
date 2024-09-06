@@ -93,11 +93,6 @@
 
     return false;
   }
-  function generateRandomSixDigitNumber() {
-    var min = 100000;
-    var max = 999999;
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
 
   var log = createLogger('log');
   var info = createLogger('info');
@@ -648,7 +643,7 @@
       var _internalMeta = {};
       var _internalMetaList = [];
 
-      var _key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
+      var _key = "".concat(entry['name'], "_").concat(generateUniqueId());
 
       _internalMeta = _defineProperty({}, _key, JSON.stringify({
         connectEnd: entry['connectEnd'],
@@ -1759,7 +1754,7 @@
     var internalMeta = {};
     var internalMetaList = [];
     (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
-      var key = "".concat(entry['name'], "_").concat(generateRandomSixDigitNumber());
+      var key = "".concat(entry['name'], "_").concat(generateUniqueId());
       internalMeta = _defineProperty({}, key, JSON.stringify({
         connectEnd: entry['connectEnd'],
         connectStart: entry['connectStart'],
