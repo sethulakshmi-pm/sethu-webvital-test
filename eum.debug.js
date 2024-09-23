@@ -1738,17 +1738,13 @@
   // See https://www.w3.org/TR/hr-time/
 
   function addResourceTimings(beacon, minStartTime) {
-    console.log('beacon - ', beacon);
-    console.log('minStartTime - ', minStartTime);
-    console.log('isResourceTimingAvailable - ', isResourceTimingAvailable, !!isResourceTimingAvailable);
-    console.log('win.JSON - ', win.JSON);
-    console.log('performance.getEntriesByType - ', performance$1.getEntriesByType('resource'));
+    console.log('beacon', beacon);
+    console.log('minStartTime', minStartTime);
 
     if (!!isResourceTimingAvailable && win.JSON) {
       var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
       mapMetaData();
-      console.log('win.JSON.stringify(entries)', win.JSON.stringify(_entries));
       beacon['res'] = win.JSON.stringify(_entries);
     } else {
       info('Resource timing not supported.');
