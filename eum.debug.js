@@ -667,7 +667,6 @@
       _internalMetaList.push(_internalMeta);
 
       sessionStorage.setItem('internalMeta', JSON.stringify(_internalMetaList));
-      console.log('internalMetaSET', _internalMeta);
     }
 
     var backendTraceId = '';
@@ -1738,9 +1737,6 @@
   // See https://www.w3.org/TR/hr-time/
 
   function addResourceTimings(beacon, minStartTime) {
-    console.log('beacon', beacon);
-    console.log('minStartTime', minStartTime);
-
     if (!!isResourceTimingAvailable && win.JSON) {
       var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
@@ -1780,8 +1776,6 @@
     sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
   }
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
-    console.log('performanceEntries', performanceEntries);
-    console.log('minStartTime', minStartTime);
     var trie = createTrie();
 
     for (var _i2 = 0, _len2 = performanceEntries.length; _i2 < _len2; _i2++) {
