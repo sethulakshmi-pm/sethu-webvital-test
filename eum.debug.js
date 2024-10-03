@@ -767,6 +767,7 @@
   function mapMetaData() {
     var _performance$getEntri;
 
+    sessionStorage.removeItem('internalMeta');
     var internalMetaList = [];
     (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
       internalMetaList.push(processEntry(entry));
@@ -900,6 +901,7 @@
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
+      sessionStorage.removeItem('internalMeta');
       var _internalMetaList = [];
 
       _internalMetaList.push(processEntry(entry));
