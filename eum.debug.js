@@ -579,6 +579,266 @@
     fullLoad: 3
   };
 
+  function isTransmitionRequest(url) {
+    var lowerCaseUrl = url.toLowerCase();
+
+    if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
+      for (var _i2 = 0, _len2 = defaultVars.reportingBackends.length; _i2 < _len2; _i2++) {
+        var _reportingBackend = defaultVars.reportingBackends[_i2];
+
+        if (_reportingBackend['reportingUrl'] && _reportingBackend['reportingUrl'].length > 0) {
+          var _lowerCaseReportingUrl = _reportingBackend['reportingUrl'].toLowerCase();
+
+          if (lowerCaseUrl === _lowerCaseReportingUrl || lowerCaseUrl === _lowerCaseReportingUrl + '/') {
+            return true;
+          }
+        }
+      }
+    } else if (defaultVars.reportingUrl) {
+      var _lowerCaseReportingUrl2 = defaultVars.reportingUrl.toLowerCase();
+
+      return lowerCaseUrl === _lowerCaseReportingUrl2 || lowerCaseUrl === _lowerCaseReportingUrl2 + '/';
+    }
+
+    return false;
+  }
+
+  var dataUrlPrefix = 'data:';
+  var ignorePingsRegex = /.*\/ping(\/?$|\?.*)/i;
+  function isUrlIgnored(url) {
+    if (!url) {
+      return true;
+    } // Force string conversion. During runtime we have seen that some URLs passed into this code path aren't actually
+    // strings. Reason currently unknown.
+
+
+    url = String(url);
+
+    if (!url) {
+      return true;
+    } // We never want to track data URLs. Instead of matching these via regular expressions (which might be expensive),
+    // we are explicitly doing a startsWith ignore case check
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
+
+
+    if (url.substring == null || url.substring(0, dataUrlPrefix.length).toLowerCase() === dataUrlPrefix) {
+      return true;
+    }
+
+    if (defaultVars.ignorePings && ignorePingsRegex.test(url)) {
+      return true;
+    } // Disable monitoring of data transmission requests. The data transmission strategy already ensures
+    // that data transmission requests are not picked up internally. However we have seen some users
+    // leverage custom (broken) XMLHttpRequest instrumentations to implement application code which
+    // then break the detection of data transmission requests.
+
+
+    if (isTransmitionRequest(url)) {
+      return true;
+    }
+
+    return matchesAny(defaultVars.ignoreUrls, url);
+  }
+  function isErrorMessageIgnored(message) {
+    return !message || matchesAny(defaultVars.ignoreErrorMessages, message);
+  }
+
+  var INTERNAL_END_MARKER = '<END>';
+  function createTrie() {
+    return new Trie();
+  }
+
+  var Trie = function Trie() {
+    this.root = {};
+  };
+
+  Trie.prototype.addItem = function addItem(key, value) {
+    this.insertItem(this.root, key.split(''), 0, value);
+    return this;
+  };
+
+  Trie.prototype.insertItem = function insertItem(node, keyCharacters, keyCharacterIndex, value) {
+    var character = keyCharacters[keyCharacterIndex]; // Characters exhausted, add value to node
+
+    if (character == null) {
+      var _values = node[INTERNAL_END_MARKER] = node[INTERNAL_END_MARKER] || [];
+
+      _values.push(value);
+
+      return;
+    }
+
+    var nextNode = node[character] = node[character] || {};
+    this.insertItem(nextNode, keyCharacters, keyCharacterIndex + 1, value);
+  };
+
+  Trie.prototype.toJs = function toJs(node) {
+    node = node || this.root;
+    var keys = getKeys(node);
+
+    if (keys.length === 1 && keys[0] === INTERNAL_END_MARKER) {
+      return node[INTERNAL_END_MARKER].slice();
+    }
+
+    var result = {};
+
+    for (var _i2 = 0, _length2 = keys.length; _i2 < _length2; _i2++) {
+      var _key2 = keys[_i2];
+
+      if (_key2 === INTERNAL_END_MARKER) {
+        result['$'] = node[INTERNAL_END_MARKER].slice();
+        continue;
+      }
+
+      var _combinedKeys = _key2;
+      var _child = node[_key2];
+
+      var _childKeys = getKeys(_child);
+
+      while (_childKeys.length === 1 && _childKeys[0] !== INTERNAL_END_MARKER) {
+        _combinedKeys += _childKeys[0];
+        _child = _child[_childKeys[0]];
+        _childKeys = getKeys(_child);
+      }
+
+      result[_combinedKeys] = this.toJs(_child);
+    }
+
+    return result;
+  };
+
+  function getKeys(obj) {
+    var result = [];
+
+    for (var _key5 in obj) {
+      if (hasOwnProperty(obj, _key5)) {
+        result.push(_key5);
+      }
+    }
+
+    return result;
+  }
+
+  // See https://www.w3.org/TR/hr-time/
+
+  function addResourceTimings(beacon, minStartTime) {
+    if (!!isResourceTimingAvailable && win.JSON) {
+      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
+
+      mapMetaData();
+      beacon['res'] = win.JSON.stringify(_entries);
+    } else {
+      info('Resource timing not supported.');
+    }
+  } // Helper to handle sessionStorage
+
+  function storeInternalMetaData(internalMetaList) {
+    sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+  } // Helper to generate metadata from a PerformanceResourceTiming entry
+
+  function generateMetaData(entry) {
+    return JSON.stringify({
+      connectEnd: entry.connectEnd,
+      connectStart: entry.connectStart,
+      domainLookupEnd: entry.domainLookupEnd,
+      domainLookupStart: entry.domainLookupStart,
+      duration: entry.duration,
+      entryType: entry.entryType,
+      fetchStart: entry.fetchStart,
+      initiatorType: entry.initiatorType,
+      redirectEnd: entry.redirectEnd,
+      redirectStart: entry.redirectStart,
+      requestStart: entry.requestStart,
+      responseEnd: entry.responseEnd,
+      responseStart: entry.responseStart,
+      secureConnectionStart: entry.secureConnectionStart,
+      startTime: entry.startTime,
+      transferSize: entry.transferSize
+    });
+  } // Generalized function to process entries and store metadata
+
+  function processEntry(entry) {
+    var key = "".concat(entry.name, "_").concat(generateUniqueId());
+
+    var internalMeta = _defineProperty({}, key, generateMetaData(entry));
+
+    return internalMeta;
+  }
+  function mapMetaData() {
+    var _performance$getEntri;
+
+    var internalMetaList = [];
+    (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
+      internalMetaList.push(processEntry(entry));
+    });
+    storeInternalMetaData(internalMetaList); // const internalMetaList: { [key: number]: string }[] = [];
+    // performance.getEntriesByType('resource')?.forEach((entry) => {
+    //   const key = `${entry['name']}_${generateUniqueId()}`;
+    //   const internalMeta = {
+    //     [key]: JSON.stringify({
+    //       connectEnd: entry['connectEnd'], connectStart: entry['connectStart'],
+    //       domainLookupEnd: entry['domainLookupEnd'], domainLookupStart: entry['domainLookupStart'],
+    //       duration: entry['duration'], entryType: entry['entryType'],
+    //       fetchStart: entry['fetchStart'], initiatorType: entry['initiatorType'],
+    //       redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
+    //       requestStart: entry['requestStart'], responseEnd: entry['responseEnd'],
+    //       responseStart: entry['responseStart'], secureConnectionStart: entry['secureConnectionStart'],
+    //       startTime: entry['startTime'], transferSize: entry['transferSize'],
+    //     })
+    //   };
+    //   internalMetaList.push(internalMeta);
+    // });
+    // sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+  }
+  function getEntriesTransferFormat(performanceEntries, minStartTime) {
+    var trie = createTrie();
+
+    for (var _i2 = 0, _len2 = performanceEntries.length; _i2 < _len2; _i2++) {
+      var _entry = performanceEntries[_i2];
+
+      if (minStartTime != null && _entry['startTime'] - defaultVars.highResTimestampReference + defaultVars.referenceTimestamp < minStartTime) {
+        continue;
+      } else if (_entry['duration'] < 0) {
+        // Some old browsers do not properly implement resource timing. They report negative durations.
+        // Ignore instead of reporting these, as the data isn't usable.
+        continue;
+      }
+
+      var _url = _entry.name;
+
+      if (isUrlIgnored(_url)) {
+        {
+          info('Will not include data about resource because resource URL is ignored via ignore rules.', _entry);
+        }
+
+        continue;
+      }
+
+      var _lowerCaseUrl = _url.toLowerCase();
+
+      var _initiatorType = _entry['initiatorType'];
+
+      if (_lowerCaseUrl === 'about:blank' || _lowerCaseUrl.indexOf('javascript:') === 0 || // some iframe cases
+      // Data transmission can be visible as a resource. Do not report it.
+      isTransmitionRequest(_url)) {
+        continue;
+      }
+
+      if (_url.length > urlMaxLength) {
+        _url = _url.substring(0, urlMaxLength);
+      } // We provide more detailed XHR insights via our XHR instrumentation.
+      // The XHR instrumentation is available once the initialization was executed
+      // (which is completely synchronous).
+
+
+      if (_initiatorType !== 'xmlhttprequest' && _initiatorType !== 'fetch' || _entry['startTime'] < defaultVars.highResTimestampReference) {
+        trie.addItem(stripSecrets(_url), serializeEntry(_entry));
+      }
+    }
+
+    return trie.toJs();
+  }
+
   function serializeEntryToArray(entry) {
     var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']]; // When timing data is available, we can provide additional information about
     // caching and resource sizes.
@@ -640,33 +900,26 @@
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
-      var _internalMeta = {};
       var _internalMetaList = [];
 
-      var _key = "".concat(entry['name'], "_").concat(generateUniqueId());
+      _internalMetaList.push(processEntry(entry));
 
-      _internalMeta = _defineProperty({}, _key, JSON.stringify({
-        connectEnd: entry['connectEnd'],
-        connectStart: entry['connectStart'],
-        domainLookupEnd: entry['domainLookupEnd'],
-        domainLookupStart: entry['domainLookupStart'],
-        duration: entry['duration'],
-        entryType: entry['entryType'],
-        fetchStart: entry['fetchStart'],
-        initiatorType: entry['initiatorType'],
-        redirectEnd: entry['redirectEnd'],
-        redirectStart: entry['redirectStart'],
-        requestStart: entry['requestStart'],
-        responseEnd: entry['responseEnd'],
-        responseStart: entry['responseStart'],
-        secureConnectionStart: entry['secureConnectionStart'],
-        startTime: entry['startTime'],
-        transferSize: entry['transferSize']
-      }));
-
-      _internalMetaList.push(_internalMeta);
-
-      sessionStorage.setItem('internalMeta', JSON.stringify(_internalMetaList));
+      storeInternalMetaData(_internalMetaList); // const internalMetaList: { [key: number]: string }[] = [];
+      // const key = `${entry['name']}_${generateUniqueId()}`;
+      // const internalMeta = {
+      //   [key]: JSON.stringify({
+      //     connectEnd: entry['connectEnd'], connectStart: entry['connectStart'],
+      //     domainLookupEnd: entry['domainLookupEnd'], domainLookupStart: entry['domainLookupStart'],
+      //     duration: entry['duration'], entryType: entry['entryType'],
+      //     fetchStart: entry['fetchStart'], initiatorType: entry['initiatorType'],
+      //     redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
+      //     requestStart: entry['requestStart'], responseEnd: entry['responseEnd'],
+      //     responseStart: entry['responseStart'], secureConnectionStart: entry['secureConnectionStart'],
+      //     startTime: entry['startTime'], transferSize: entry['transferSize'],
+      //   })
+      // };
+      // internalMetaList.push(internalMeta);
+      // sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
     }
 
     var backendTraceId = '';
@@ -1008,70 +1261,6 @@
     }
 
     return str.substring(1);
-  }
-
-  function isTransmitionRequest(url) {
-    var lowerCaseUrl = url.toLowerCase();
-
-    if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
-      for (var _i2 = 0, _len2 = defaultVars.reportingBackends.length; _i2 < _len2; _i2++) {
-        var _reportingBackend = defaultVars.reportingBackends[_i2];
-
-        if (_reportingBackend['reportingUrl'] && _reportingBackend['reportingUrl'].length > 0) {
-          var _lowerCaseReportingUrl = _reportingBackend['reportingUrl'].toLowerCase();
-
-          if (lowerCaseUrl === _lowerCaseReportingUrl || lowerCaseUrl === _lowerCaseReportingUrl + '/') {
-            return true;
-          }
-        }
-      }
-    } else if (defaultVars.reportingUrl) {
-      var _lowerCaseReportingUrl2 = defaultVars.reportingUrl.toLowerCase();
-
-      return lowerCaseUrl === _lowerCaseReportingUrl2 || lowerCaseUrl === _lowerCaseReportingUrl2 + '/';
-    }
-
-    return false;
-  }
-
-  var dataUrlPrefix = 'data:';
-  var ignorePingsRegex = /.*\/ping(\/?$|\?.*)/i;
-  function isUrlIgnored(url) {
-    if (!url) {
-      return true;
-    } // Force string conversion. During runtime we have seen that some URLs passed into this code path aren't actually
-    // strings. Reason currently unknown.
-
-
-    url = String(url);
-
-    if (!url) {
-      return true;
-    } // We never want to track data URLs. Instead of matching these via regular expressions (which might be expensive),
-    // we are explicitly doing a startsWith ignore case check
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
-
-
-    if (url.substring == null || url.substring(0, dataUrlPrefix.length).toLowerCase() === dataUrlPrefix) {
-      return true;
-    }
-
-    if (defaultVars.ignorePings && ignorePingsRegex.test(url)) {
-      return true;
-    } // Disable monitoring of data transmission requests. The data transmission strategy already ensures
-    // that data transmission requests are not picked up internally. However we have seen some users
-    // leverage custom (broken) XMLHttpRequest instrumentations to implement application code which
-    // then break the detection of data transmission requests.
-
-
-    if (isTransmitionRequest(url)) {
-      return true;
-    }
-
-    return matchesAny(defaultVars.ignoreUrls, url);
-  }
-  function isErrorMessageIgnored(message) {
-    return !message || matchesAny(defaultVars.ignoreErrorMessages, message);
   }
 
   var isExcessiveUsage = createExcessiveUsageIdentifier({
@@ -1656,172 +1845,6 @@
         beacon[keyPrefix + _key2] = _serializedValue.substring(0, maxLength);
       }
     }
-  }
-
-  var INTERNAL_END_MARKER = '<END>';
-  function createTrie() {
-    return new Trie();
-  }
-
-  var Trie = function Trie() {
-    this.root = {};
-  };
-
-  Trie.prototype.addItem = function addItem(key, value) {
-    this.insertItem(this.root, key.split(''), 0, value);
-    return this;
-  };
-
-  Trie.prototype.insertItem = function insertItem(node, keyCharacters, keyCharacterIndex, value) {
-    var character = keyCharacters[keyCharacterIndex]; // Characters exhausted, add value to node
-
-    if (character == null) {
-      var _values = node[INTERNAL_END_MARKER] = node[INTERNAL_END_MARKER] || [];
-
-      _values.push(value);
-
-      return;
-    }
-
-    var nextNode = node[character] = node[character] || {};
-    this.insertItem(nextNode, keyCharacters, keyCharacterIndex + 1, value);
-  };
-
-  Trie.prototype.toJs = function toJs(node) {
-    node = node || this.root;
-    var keys = getKeys(node);
-
-    if (keys.length === 1 && keys[0] === INTERNAL_END_MARKER) {
-      return node[INTERNAL_END_MARKER].slice();
-    }
-
-    var result = {};
-
-    for (var _i2 = 0, _length2 = keys.length; _i2 < _length2; _i2++) {
-      var _key2 = keys[_i2];
-
-      if (_key2 === INTERNAL_END_MARKER) {
-        result['$'] = node[INTERNAL_END_MARKER].slice();
-        continue;
-      }
-
-      var _combinedKeys = _key2;
-      var _child = node[_key2];
-
-      var _childKeys = getKeys(_child);
-
-      while (_childKeys.length === 1 && _childKeys[0] !== INTERNAL_END_MARKER) {
-        _combinedKeys += _childKeys[0];
-        _child = _child[_childKeys[0]];
-        _childKeys = getKeys(_child);
-      }
-
-      result[_combinedKeys] = this.toJs(_child);
-    }
-
-    return result;
-  };
-
-  function getKeys(obj) {
-    var result = [];
-
-    for (var _key5 in obj) {
-      if (hasOwnProperty(obj, _key5)) {
-        result.push(_key5);
-      }
-    }
-
-    return result;
-  }
-
-  // See https://www.w3.org/TR/hr-time/
-
-  function addResourceTimings(beacon, minStartTime) {
-    if (!!isResourceTimingAvailable && win.JSON) {
-      var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
-
-      mapMetaData();
-      beacon['res'] = win.JSON.stringify(_entries);
-    } else {
-      info('Resource timing not supported.');
-    }
-  }
-  function mapMetaData() {
-    var _performance$getEntri;
-
-    var internalMeta = {};
-    var internalMetaList = [];
-    (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
-      var key = "".concat(entry['name'], "_").concat(generateUniqueId());
-      internalMeta = _defineProperty({}, key, JSON.stringify({
-        connectEnd: entry['connectEnd'],
-        connectStart: entry['connectStart'],
-        domainLookupEnd: entry['domainLookupEnd'],
-        domainLookupStart: entry['domainLookupStart'],
-        duration: entry['duration'],
-        entryType: entry['entryType'],
-        fetchStart: entry['fetchStart'],
-        initiatorType: entry['initiatorType'],
-        redirectEnd: entry['redirectEnd'],
-        redirectStart: entry['redirectStart'],
-        requestStart: entry['requestStart'],
-        responseEnd: entry['responseEnd'],
-        responseStart: entry['responseStart'],
-        secureConnectionStart: entry['secureConnectionStart'],
-        startTime: entry['startTime'],
-        transferSize: entry['transferSize']
-      }));
-      internalMetaList.push(internalMeta);
-    });
-    sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
-  }
-  function getEntriesTransferFormat(performanceEntries, minStartTime) {
-    var trie = createTrie();
-
-    for (var _i2 = 0, _len2 = performanceEntries.length; _i2 < _len2; _i2++) {
-      var _entry = performanceEntries[_i2];
-
-      if (minStartTime != null && _entry['startTime'] - defaultVars.highResTimestampReference + defaultVars.referenceTimestamp < minStartTime) {
-        continue;
-      } else if (_entry['duration'] < 0) {
-        // Some old browsers do not properly implement resource timing. They report negative durations.
-        // Ignore instead of reporting these, as the data isn't usable.
-        continue;
-      }
-
-      var _url = _entry.name;
-
-      if (isUrlIgnored(_url)) {
-        {
-          info('Will not include data about resource because resource URL is ignored via ignore rules.', _entry);
-        }
-
-        continue;
-      }
-
-      var _lowerCaseUrl = _url.toLowerCase();
-
-      var _initiatorType = _entry['initiatorType'];
-
-      if (_lowerCaseUrl === 'about:blank' || _lowerCaseUrl.indexOf('javascript:') === 0 || // some iframe cases
-      // Data transmission can be visible as a resource. Do not report it.
-      isTransmitionRequest(_url)) {
-        continue;
-      }
-
-      if (_url.length > urlMaxLength) {
-        _url = _url.substring(0, urlMaxLength);
-      } // We provide more detailed XHR insights via our XHR instrumentation.
-      // The XHR instrumentation is available once the initialization was executed
-      // (which is completely synchronous).
-
-
-      if (_initiatorType !== 'xmlhttprequest' && _initiatorType !== 'fetch' || _entry['startTime'] < defaultVars.highResTimestampReference) {
-        trie.addItem(stripSecrets(_url), serializeEntry(_entry));
-      }
-    }
-
-    return trie.toJs();
   }
 
   // https://www.w3.org/TR/navigation-timing/
