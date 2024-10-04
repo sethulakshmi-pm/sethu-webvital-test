@@ -725,7 +725,7 @@
     if (!!isResourceTimingAvailable && win.JSON) {
       var _entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
 
-      mapMetaData();
+      storePerformanceMetrics();
       beacon['res'] = win.JSON.stringify(_entries);
     } else {
       info('Resource timing not supported.');
@@ -764,7 +764,7 @@
 
     return internalMeta;
   }
-  function mapMetaData() {
+  function storePerformanceMetrics() {
     var _performance$getEntri;
 
     sessionStorage.removeItem('internalMeta');
