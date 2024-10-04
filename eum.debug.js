@@ -732,8 +732,8 @@
     }
   } // Helper to handle sessionStorage
 
-  function storeInternalMetaData(internalMetaList) {
-    sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+  function storePerformanceMetricsData(performanceMetricsList) {
+    sessionStorage.setItem('performanceMetrics', JSON.stringify(performanceMetricsList));
   } // Helper to generate metadata from a PerformanceResourceTiming entry
 
   function generateMetaData(entry) {
@@ -760,36 +760,19 @@
   function processEntry(entry) {
     var key = "".concat(entry.name, "_").concat(generateUniqueId());
 
-    var internalMeta = _defineProperty({}, key, generateMetaData(entry));
+    var performanceMetrics = _defineProperty({}, key, generateMetaData(entry));
 
-    return internalMeta;
+    return performanceMetrics;
   }
   function storePerformanceMetrics() {
     var _performance$getEntri;
 
-    sessionStorage.removeItem('internalMeta');
-    var internalMetaList = [];
+    sessionStorage.removeItem('performanceMetrics');
+    var performanceMetricsList = [];
     (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
-      internalMetaList.push(processEntry(entry));
+      performanceMetricsList.push(processEntry(entry));
     });
-    storeInternalMetaData(internalMetaList); // const internalMetaList: { [key: number]: string }[] = [];
-    // performance.getEntriesByType('resource')?.forEach((entry) => {
-    //   const key = `${entry['name']}_${generateUniqueId()}`;
-    //   const internalMeta = {
-    //     [key]: JSON.stringify({
-    //       connectEnd: entry['connectEnd'], connectStart: entry['connectStart'],
-    //       domainLookupEnd: entry['domainLookupEnd'], domainLookupStart: entry['domainLookupStart'],
-    //       duration: entry['duration'], entryType: entry['entryType'],
-    //       fetchStart: entry['fetchStart'], initiatorType: entry['initiatorType'],
-    //       redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
-    //       requestStart: entry['requestStart'], responseEnd: entry['responseEnd'],
-    //       responseStart: entry['responseStart'], secureConnectionStart: entry['secureConnectionStart'],
-    //       startTime: entry['startTime'], transferSize: entry['transferSize'],
-    //     })
-    //   };
-    //   internalMetaList.push(internalMeta);
-    // });
-    // sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+    storePerformanceMetricsData(performanceMetricsList);
   }
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
     var trie = createTrie();
@@ -901,27 +884,12 @@
 
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
-      sessionStorage.removeItem('internalMeta');
-      var _internalMetaList = [];
+      sessionStorage.removeItem('performanceMetrics');
+      var _performanceMetricsList = [];
 
-      _internalMetaList.push(processEntry(entry));
+      _performanceMetricsList.push(processEntry(entry));
 
-      storeInternalMetaData(_internalMetaList); // const internalMetaList: { [key: number]: string }[] = [];
-      // const key = `${entry['name']}_${generateUniqueId()}`;
-      // const internalMeta = {
-      //   [key]: JSON.stringify({
-      //     connectEnd: entry['connectEnd'], connectStart: entry['connectStart'],
-      //     domainLookupEnd: entry['domainLookupEnd'], domainLookupStart: entry['domainLookupStart'],
-      //     duration: entry['duration'], entryType: entry['entryType'],
-      //     fetchStart: entry['fetchStart'], initiatorType: entry['initiatorType'],
-      //     redirectEnd: entry['redirectEnd'], redirectStart: entry['redirectStart'],
-      //     requestStart: entry['requestStart'], responseEnd: entry['responseEnd'],
-      //     responseStart: entry['responseStart'], secureConnectionStart: entry['secureConnectionStart'],
-      //     startTime: entry['startTime'], transferSize: entry['transferSize'],
-      //   })
-      // };
-      // internalMetaList.push(internalMeta);
-      // sessionStorage.setItem('internalMeta', JSON.stringify(internalMetaList));
+      storePerformanceMetricsData(_performanceMetricsList);
     }
 
     var backendTraceId = '';
@@ -984,9 +952,9 @@
   }
   function addResourceTiming(beacon, resource) {
     var timings = serializeEntryToArray(resource);
-    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+    var performanceMetrics = sessionStorage.getItem('performanceMetrics') || '[]';
+    var performanceMetricsList = JSON.parse(performanceMetrics);
+    performanceMetricsList === null || performanceMetricsList === void 0 || performanceMetricsList.forEach(function (element) {
       return addInternalMetaDataToBeacon(beacon, element);
     });
     beacon['s_ty'] = getTimingValue(timings[3]);
@@ -1769,9 +1737,9 @@
       beacon['uf'] = 'sn';
     }
 
-    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+    var performanceMetrics = sessionStorage.getItem('performanceMetrics') || '[]';
+    var performanceMetricsList = JSON.parse(performanceMetrics);
+    performanceMetricsList === null || performanceMetricsList === void 0 || performanceMetricsList.forEach(function (element) {
       return addInternalMetaDataToBeacon(beacon, element);
     });
   }
@@ -1926,9 +1894,9 @@
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
     addFirstPaintTimings(beacon, start);
-    var internalMeta = sessionStorage.getItem('internalMeta') || '[]';
-    var internalMetaList = JSON.parse(internalMeta);
-    internalMetaList === null || internalMetaList === void 0 || internalMetaList.forEach(function (element) {
+    var performanceMetrics = sessionStorage.getItem('performanceMetrics') || '[]';
+    var performanceMetricsList = JSON.parse(performanceMetrics);
+    performanceMetricsList === null || performanceMetricsList === void 0 || performanceMetricsList.forEach(function (element) {
       return addInternalMetaDataToBeacon(beacon, element);
     });
   }
