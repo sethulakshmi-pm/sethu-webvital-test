@@ -1,4 +1,4 @@
-(function () {
+(function (util) {
   'use strict';
 
   var pageLoad = 'pl';
@@ -43,6 +43,7 @@
   function hasOwnProperty(obj, key) {
     return globalHasOwnProperty.call(obj, key);
   }
+  var PERFORMANCE_METRICS_KEY = 'performanceMetrics';
   function now() {
     return new Date().getTime();
   }
@@ -319,6 +320,153 @@
     transitionTo('pageLoaded');
   }
 
+  function _arrayLikeToArray(r, a) {
+    (null == a || a > r.length) && (a = r.length);
+    for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+    return n;
+  }
+  function _arrayWithHoles(r) {
+    if (Array.isArray(r)) return r;
+  }
+  function _createForOfIteratorHelper(r, e) {
+    var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+    if (!t) {
+      if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
+        t && (r = t);
+        var n = 0,
+          F = function () { };
+        return {
+          s: F,
+          n: function () {
+            return n >= r.length ? {
+              done: !0
+            } : {
+              done: !1,
+              value: r[n++]
+            };
+          },
+          e: function (r) {
+            throw r;
+          },
+          f: F
+        };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o,
+      a = !0,
+      u = !1;
+    return {
+      s: function () {
+        t = t.call(r);
+      },
+      n: function () {
+        var r = t.next();
+        return a = r.done, r;
+      },
+      e: function (r) {
+        u = !0, o = r;
+      },
+      f: function () {
+        try {
+          a || null == t.return || t.return();
+        } finally {
+          if (u) throw o;
+        }
+      }
+    };
+  }
+  function _defineProperty(e, r, t) {
+    return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+      value: t,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[r] = t, e;
+  }
+  function _iterableToArrayLimit(r, l) {
+    var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+    if (null != t) {
+      var e,
+        n,
+        i,
+        u,
+        a = [],
+        f = !0,
+        o = !1;
+      try {
+        if (i = (t = t.call(r)).next, 0 === l) {
+          if (Object(t) !== t) return;
+          f = !1;
+        } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
+      } catch (r) {
+        o = !0, n = r;
+      } finally {
+        try {
+          if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
+        } finally {
+          if (o) throw n;
+        }
+      }
+      return a;
+    }
+  }
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  function _slicedToArray(r, e) {
+    return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
+  }
+  function _toPrimitive(t, r) {
+    if ("object" != typeof t || !t) return t;
+    var e = t[Symbol.toPrimitive];
+    if (void 0 !== e) {
+      var i = e.call(t, r || "default");
+      if ("object" != typeof i) return i;
+      throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return ("string" === r ? String : Number)(t);
+  }
+  function _toPropertyKey(t) {
+    var i = _toPrimitive(t, "string");
+    return "symbol" == typeof i ? i : i + "";
+  }
+  function _typeof(o) {
+    "@babel/helpers - typeof";
+
+    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+      return typeof o;
+    } : function (o) {
+      return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+    }, _typeof(o);
+  }
+  function _unsupportedIterableToArray(r, a) {
+    if (r) {
+      if ("string" == typeof r) return _arrayLikeToArray(r, a);
+      var t = {}.toString.call(r).slice(8, -1);
+      return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+    }
+  }
+
+  function isTransmitionRequest(url) {
+    var lowerCaseUrl = url.toLowerCase();
+    if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
+      for (var i = 0, len = defaultVars.reportingBackends.length; i < len; i++) {
+        var reportingBackend = defaultVars.reportingBackends[i];
+        if (reportingBackend['reportingUrl'] && reportingBackend['reportingUrl'].length > 0) {
+          var lowerCaseReportingUrl = reportingBackend['reportingUrl'].toLowerCase();
+          if (lowerCaseUrl === lowerCaseReportingUrl || lowerCaseUrl === lowerCaseReportingUrl + '/') {
+            return true;
+          }
+        }
+      }
+    } else if (defaultVars.reportingUrl) {
+      var _lowerCaseReportingUrl = defaultVars.reportingUrl.toLowerCase();
+      return lowerCaseUrl === _lowerCaseReportingUrl || lowerCaseUrl === _lowerCaseReportingUrl + '/';
+    }
+    return false;
+  }
+
   var urlAnalysisElement = null;
   try {
     urlAnalysisElement = document.createElement('a');
@@ -364,251 +512,6 @@
     return url;
   }
 
-  var maximumNumberOfMetaDataFields = 25;
-  var maximumLengthPerMetaDataField = 1024;
-  var languages = determineLanguages();
-
-  // Internal Meta data
-  var maximumNumberOfInternalMetaDataFields = 128;
-  var maximumLengthPerInternalMetaDataField = 1024;
-  function addCommonBeaconProperties(beacon) {
-    if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
-      var reportingBackend = defaultVars.reportingBackends[0];
-      beacon['k'] = reportingBackend['key'];
-    } else {
-      beacon['k'] = defaultVars.apiKey;
-    }
-    beacon['sv'] = defaultVars.trackingSnippetVersion;
-    beacon['r'] = defaultVars.referenceTimestamp;
-    beacon['p'] = defaultVars.page;
-    beacon['l'] = stripSecrets(win.location.href);
-    beacon['pl'] = defaultVars.pageLoadTraceId;
-    beacon['ui'] = defaultVars.userId;
-    beacon['un'] = defaultVars.userName;
-    beacon['ue'] = defaultVars.userEmail;
-    beacon['ul'] = languages;
-    beacon['ph'] = getActivePhase();
-    beacon['sid'] = defaultVars.sessionId;
-    beacon['ww'] = win.innerWidth;
-    beacon['wh'] = win.innerHeight;
-    beacon['agv'] = defaultVars.agentVersion;
-    // Google Closure compiler is not yet aware of these globals. Make sure it doesn't
-    // mangle them.
-    var anyNav = nav;
-    if (anyNav['connection'] && anyNav['connection']['effectiveType']) {
-      beacon['ct'] = anyNav['connection']['effectiveType'];
-    }
-    if (doc.visibilityState) {
-      beacon['h'] = doc.visibilityState === 'hidden' ? 1 : 0;
-    }
-    addMetaDataToBeacon(beacon, defaultVars.meta);
-    if (defaultVars.autoPageDetection) {
-      // uf field will be a comma separated string if more than one use features are supported
-      beacon['uf'] = 'sn';
-    }
-  }
-  function determineLanguages() {
-    if (nav.languages && nav.languages.length > 0) {
-      return nav.languages.slice(0, 5).join(',');
-    }
-    var anyNav = nav;
-    if (typeof anyNav.userLanguage === 'string') {
-      return [anyNav.userLanguage].join(',');
-    }
-    return undefined;
-  }
-  function addMetaDataToBeacon(beacon, meta) {
-    addMetaDataImpl(beacon, meta);
-  }
-  function addInternalMetaDataToBeacon(beacon, meta) {
-    var options = {
-      keyPrefix: 'im_',
-      maxFields: maximumNumberOfInternalMetaDataFields,
-      maxLengthPerField: maximumLengthPerInternalMetaDataField,
-      maxFieldsWarningMsg: 'Maximum number of internal meta data fields exceeded. Not all internal meta data fields will be transmitted.'
-    };
-    addMetaDataImpl(beacon, meta, options);
-  }
-  function addMetaDataImpl(beacon, meta, options) {
-    var keyPrefix = (options === null || options === void 0 ? void 0 : options.keyPrefix) || 'm_';
-    var maxFields = (options === null || options === void 0 ? void 0 : options.maxFields) || maximumNumberOfMetaDataFields;
-    var maxLength = (options === null || options === void 0 ? void 0 : options.maxLengthPerField) || maximumLengthPerMetaDataField;
-    var maxFieldsWarningMsg = (options === null || options === void 0 ? void 0 : options.maxFieldsWarningMsg) || 'Maximum number of meta data fields exceeded. Not all meta data fields will be transmitted.';
-    var i = 0;
-    for (var key in meta) {
-      if (hasOwnProperty(meta, key)) {
-        i++;
-        if (i > maxFields) {
-          {
-            warn(maxFieldsWarningMsg);
-          }
-          return;
-        }
-        var serializedValue = null;
-        if (typeof meta[key] === 'string') {
-          serializedValue = meta[key];
-        } else if (meta[key] === undefined) {
-          serializedValue = 'undefined';
-        } else if (meta[key] === null) {
-          serializedValue = 'null';
-        } else if (win.JSON) {
-          try {
-            serializedValue = win.JSON.stringify(meta[key]);
-          } catch (e) {
-            {
-              warn('JSON serialization of meta data', key, meta[key], 'failed due to', e, '. This value will not be transmitted.');
-            }
-            continue;
-          }
-        } else {
-          serializedValue = String(meta[key]);
-        }
-        beacon[keyPrefix + key] = serializedValue.substring(0, maxLength);
-      }
-    }
-  }
-
-  function isTransmitionRequest(url) {
-    var lowerCaseUrl = url.toLowerCase();
-    if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
-      for (var i = 0, len = defaultVars.reportingBackends.length; i < len; i++) {
-        var reportingBackend = defaultVars.reportingBackends[i];
-        if (reportingBackend['reportingUrl'] && reportingBackend['reportingUrl'].length > 0) {
-          var lowerCaseReportingUrl = reportingBackend['reportingUrl'].toLowerCase();
-          if (lowerCaseUrl === lowerCaseReportingUrl || lowerCaseUrl === lowerCaseReportingUrl + '/') {
-            return true;
-          }
-        }
-      }
-    } else if (defaultVars.reportingUrl) {
-      var _lowerCaseReportingUrl = defaultVars.reportingUrl.toLowerCase();
-      return lowerCaseUrl === _lowerCaseReportingUrl || lowerCaseUrl === _lowerCaseReportingUrl + '/';
-    }
-    return false;
-  }
-
-  var urlMaxLength = 255;
-  var initiatorTypes = {
-    'other': 0,
-    'img': 1,
-    // IMAGE element inside a SVG
-    'image': 1,
-    'link': 2,
-    'script': 3,
-    'css': 4,
-    'xmlhttprequest': 5,
-    'fetch': 5,
-    'beacon': 5,
-    'html': 6,
-    'navigation': 6
-  };
-  var cachingTypes = {
-    unknown: 0,
-    cached: 1,
-    validated: 2,
-    fullLoad: 3
-  };
-
-  function serializeEntryToArray(entry) {
-    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']];
-
-    // When timing data is available, we can provide additional information about
-    // caching and resource sizes.
-    if (typeof entry['transferSize'] === 'number' && typeof entry['encodedBodySize'] === 'number' &&
-      // All this information may not be available due to the timing allow origin check.
-      entry['encodedBodySize'] > 0) {
-      if (entry['transferSize'] === 0) {
-        result.push(cachingTypes.cached);
-      } else if (entry['transferSize'] > 0 && (entry['encodedBodySize'] === 0 || entry['transferSize'] < entry['encodedBodySize'])) {
-        result.push(cachingTypes.validated);
-      } else {
-        result.push(cachingTypes.fullLoad);
-      }
-      if (entry['encodedBodySize'] != null) {
-        result.push(entry['encodedBodySize']);
-      } else {
-        result.push('');
-      }
-      if (entry['decodedBodySize'] != null) {
-        result.push(entry['decodedBodySize']);
-      } else {
-        result.push('');
-      }
-      if (entry['transferSize'] != null) {
-        result.push(entry['transferSize']);
-      } else {
-        result.push('');
-      }
-    } else {
-      result.push('');
-      result.push('');
-      result.push('');
-      result.push('');
-    }
-    var hasValidTimings = entry['responseStart'] != null &&
-      // timing allow origin check may have failed
-      entry['responseStart'] >= entry['fetchStart'];
-    if (hasValidTimings) {
-      result.push(calculateTiming(entry['redirectEnd'], entry['redirectStart']));
-      result.push(calculateTiming(entry['domainLookupStart'], entry['fetchStart']));
-      result.push(calculateTiming(entry['domainLookupEnd'], entry['domainLookupStart']));
-      if (entry['connectStart'] > 0 && entry['connectEnd'] > 0) {
-        if (entry['secureConnectionStart'] != null && entry['secureConnectionStart'] > 0) {
-          result.push(calculateTiming(entry['secureConnectionStart'], entry['connectStart']));
-          result.push(calculateTiming(entry['connectEnd'], entry['secureConnectionStart']));
-        } else {
-          result.push(calculateTiming(entry['connectEnd'], entry['connectStart']));
-          result.push('');
-        }
-      } else {
-        result.push('');
-        result.push('');
-      }
-      result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
-      result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
-    }
-    var backendTraceId = '';
-    try {
-      var serverTimings = entry['serverTiming'];
-      if (serverTimings instanceof Array) {
-        for (var i = 0; i < serverTimings.length; i++) {
-          var serverTiming = serverTimings[i];
-          if (serverTiming['name'] === defaultVars.serverTimingBackendTraceIdEntryName) {
-            backendTraceId = serverTiming['description'];
-          }
-        }
-      }
-    } catch (e) {
-      // Some browsers may not grant access to the field when the Timing-Allow-Origin
-      // check fails. Better be safe than sorry here.
-    }
-    result.push(backendTraceId);
-    if (hasValidTimings) {
-      result.push(calculateTiming(entry['responseStart'], entry['startTime']));
-    } else {
-      result.push('');
-    }
-    return result;
-  }
-  function serializeEntry(entry) {
-    return serializeEntryToArray(entry).join(',')
-      // remove empty trailing timings
-      .replace(/,+$/, '');
-  }
-  function calculateTiming(a, b) {
-    if (a == null || b == null ||
-      // the values being equal indicates for example that a network connection didn't need
-      // to be established. Do not report a timing of '0' as this will skew the statistics.
-      a === b) {
-      return '';
-    }
-    var diff = Math.round(a - b);
-    if (diff < 0) {
-      return '';
-    }
-    return diff;
-  }
-
   var dataUrlPrefix = 'data:';
   var ignorePingsRegex = /.*\/ping(\/?$|\?.*)/i;
   function isUrlIgnored(url) {
@@ -645,6 +548,28 @@
   function isErrorMessageIgnored(message) {
     return !message || matchesAny(defaultVars.ignoreErrorMessages, message);
   }
+
+  var urlMaxLength = 255;
+  var initiatorTypes = {
+    'other': 0,
+    'img': 1,
+    // IMAGE element inside a SVG
+    'image': 1,
+    'link': 2,
+    'script': 3,
+    'css': 4,
+    'xmlhttprequest': 5,
+    'fetch': 5,
+    'beacon': 5,
+    'html': 6,
+    'navigation': 6
+  };
+  var cachingTypes = {
+    unknown: 0,
+    cached: 1,
+    validated: 2,
+    fullLoad: 3
+  };
 
   var INTERNAL_END_MARKER = '<END>';
   function createTrie() {
@@ -709,10 +634,54 @@
   function addResourceTimings(beacon, minStartTime) {
     if (!!isResourceTimingAvailable && win.JSON) {
       var entries = getEntriesTransferFormat(performance$1.getEntriesByType('resource'), minStartTime);
+      storePerformanceMetrics();
       beacon['res'] = win.JSON.stringify(entries);
     } else {
       info('Resource timing not supported.');
     }
+  }
+
+  // Helper to handle sessionStorage
+  function storePerformanceMetricsData(performanceMetricsList) {
+    sessionStorage.setItem(PERFORMANCE_METRICS_KEY, JSON.stringify(performanceMetricsList));
+  }
+
+  // Helper to generate metadata from a PerformanceResourceTiming entry
+  function generateMetaData(entry) {
+    return JSON.stringify({
+      connectEnd: entry.connectEnd,
+      connectStart: entry.connectStart,
+      domainLookupEnd: entry.domainLookupEnd,
+      domainLookupStart: entry.domainLookupStart,
+      duration: entry.duration,
+      entryType: entry.entryType,
+      fetchStart: entry.fetchStart,
+      initiatorType: entry.initiatorType,
+      redirectEnd: entry.redirectEnd,
+      redirectStart: entry.redirectStart,
+      requestStart: entry.requestStart,
+      responseEnd: entry.responseEnd,
+      responseStart: entry.responseStart,
+      secureConnectionStart: entry.secureConnectionStart,
+      startTime: entry.startTime,
+      transferSize: entry.transferSize
+    });
+  }
+
+  // Generalized function to process entries and store metadata
+  function processEntry(entry) {
+    var key = "".concat(entry.name, "_").concat(generateUniqueId());
+    var performanceMetrics = _defineProperty({}, key, generateMetaData(entry));
+    return performanceMetrics;
+  }
+  function storePerformanceMetrics() {
+    var _performance$getEntri;
+    sessionStorage.removeItem(PERFORMANCE_METRICS_KEY);
+    var performanceMetricsList = [];
+    (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
+      performanceMetricsList.push(processEntry(entry));
+    });
+    storePerformanceMetricsData(performanceMetricsList);
   }
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
     var trie = createTrie();
@@ -752,6 +721,273 @@
       }
     }
     return trie.toJs();
+  }
+
+  function serializeEntryToArray(entry) {
+    var result = [Math.round(entry['startTime'] - defaultVars.highResTimestampReference), Math.round(entry['duration']), initiatorTypes[entry['initiatorType']] || initiatorTypes['other']];
+
+    // When timing data is available, we can provide additional information about
+    // caching and resource sizes.
+    if (typeof entry['transferSize'] === 'number' && typeof entry['encodedBodySize'] === 'number' &&
+      // All this information may not be available due to the timing allow origin check.
+      entry['encodedBodySize'] > 0) {
+      if (entry['transferSize'] === 0) {
+        result.push(cachingTypes.cached);
+      } else if (entry['transferSize'] > 0 && (entry['encodedBodySize'] === 0 || entry['transferSize'] < entry['encodedBodySize'])) {
+        result.push(cachingTypes.validated);
+      } else {
+        result.push(cachingTypes.fullLoad);
+      }
+      if (entry['encodedBodySize'] != null) {
+        result.push(entry['encodedBodySize']);
+      } else {
+        result.push('');
+      }
+      if (entry['decodedBodySize'] != null) {
+        result.push(entry['decodedBodySize']);
+      } else {
+        result.push('');
+      }
+      if (entry['transferSize'] != null) {
+        result.push(entry['transferSize']);
+      } else {
+        result.push('');
+      }
+    } else {
+      result.push('');
+      result.push('');
+      result.push('');
+      result.push('');
+    }
+    var hasValidTimings = entry['responseStart'] != null &&
+      // timing allow origin check may have failed
+      entry['responseStart'] >= entry['fetchStart'];
+    if (hasValidTimings) {
+      result.push(calculateTiming(entry['redirectEnd'], entry['redirectStart']));
+      result.push(calculateTiming(entry['domainLookupStart'], entry['fetchStart']));
+      result.push(calculateTiming(entry['domainLookupEnd'], entry['domainLookupStart']));
+      if (entry['connectStart'] > 0 && entry['connectEnd'] > 0) {
+        if (entry['secureConnectionStart'] != null && entry['secureConnectionStart'] > 0) {
+          result.push(calculateTiming(entry['secureConnectionStart'], entry['connectStart']));
+          result.push(calculateTiming(entry['connectEnd'], entry['secureConnectionStart']));
+        } else {
+          result.push(calculateTiming(entry['connectEnd'], entry['connectStart']));
+          result.push('');
+        }
+      } else {
+        result.push('');
+        result.push('');
+      }
+      result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
+      result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
+      sessionStorage.removeItem(util.PERFORMANCE_METRICS_KEY);
+      var performanceMetricsList = [];
+      performanceMetricsList.push(processEntry(entry));
+      storePerformanceMetricsData(performanceMetricsList);
+    }
+    var backendTraceId = '';
+    try {
+      var serverTimings = entry['serverTiming'];
+      if (serverTimings instanceof Array) {
+        for (var i = 0; i < serverTimings.length; i++) {
+          var serverTiming = serverTimings[i];
+          if (serverTiming['name'] === defaultVars.serverTimingBackendTraceIdEntryName) {
+            backendTraceId = serverTiming['description'];
+          }
+        }
+      }
+    } catch (e) {
+      // Some browsers may not grant access to the field when the Timing-Allow-Origin
+      // check fails. Better be safe than sorry here.
+    }
+    result.push(backendTraceId);
+    if (hasValidTimings) {
+      result.push(calculateTiming(entry['responseStart'], entry['startTime']));
+    } else {
+      result.push('');
+    }
+    return result;
+  }
+  function serializeEntry(entry) {
+    return serializeEntryToArray(entry).join(',')
+      // remove empty trailing timings
+      .replace(/,+$/, '');
+  }
+  function calculateTiming(a, b) {
+    if (a == null || b == null ||
+      // the values being equal indicates for example that a network connection didn't need
+      // to be established. Do not report a timing of '0' as this will skew the statistics.
+      a === b) {
+      return '';
+    }
+    var diff = Math.round(a - b);
+    if (diff < 0) {
+      return '';
+    }
+    return diff;
+  }
+
+  /*
+   * This file exists to resolve circular dependencies between
+   * lib/transmission/index.js -> lib/transmission/batched.js -> lib/hooks/XMLHttpRequest.js -> lib/transmission/index.js
+   */
+
+  function disableMonitoringForXMLHttpRequest(xhr) {
+    var state = xhr[defaultVars.secretPropertyKey] = xhr[defaultVars.secretPropertyKey] || {};
+    state.ignored = true;
+  }
+  function addResourceTiming(beacon, resource) {
+    var timings = serializeEntryToArray(resource);
+    processPerformanceMetrics(beacon);
+    beacon['s_ty'] = getTimingValue(timings[3]);
+    beacon['s_eb'] = getTimingValue(timings[4]);
+    beacon['s_db'] = getTimingValue(timings[5]);
+    beacon['s_ts'] = getTimingValue(timings[6]);
+    beacon['t_red'] = getTimingValue(timings[7]);
+    beacon['t_apc'] = getTimingValue(timings[8]);
+    beacon['t_dns'] = getTimingValue(timings[9]);
+    beacon['t_tcp'] = getTimingValue(timings[10]);
+    beacon['t_ssl'] = getTimingValue(timings[11]);
+    beacon['t_req'] = getTimingValue(timings[12]);
+    beacon['t_rsp'] = getTimingValue(timings[13]);
+    if (timings[14]) {
+      beacon['bt'] = timings[14];
+      beacon['bc'] = 1;
+    }
+    beacon['t_ttfb'] = getTimingValue(timings[15]);
+  }
+  function getTimingValue(timing) {
+    if (typeof timing === 'number') {
+      return timing;
+    }
+    return undefined;
+  }
+  function addCorrelationHttpHeaders(fn, ctx, traceId) {
+    fn.call(ctx, 'X-INSTANA-T', traceId);
+    fn.call(ctx, 'X-INSTANA-S', traceId);
+    fn.call(ctx, 'X-INSTANA-L', '1,correlationType=web;correlationId=' + traceId);
+  }
+  function processPerformanceMetrics(beacon) {
+    var performanceMetrics = sessionStorage.getItem(util.PERFORMANCE_METRICS_KEY) || '[]';
+    var performanceMetricsList = JSON.parse(performanceMetrics);
+    var combinedMetrics = performanceMetricsList.reduce(function (acc, element) {
+      Object.entries(element).forEach(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+          key = _ref2[0],
+          value = _ref2[1];
+        acc[key] = value;
+      });
+      return acc;
+    }, {});
+    var metricsToSend = {
+      performanceMetrics: JSON.stringify(combinedMetrics) // Stringify combined metrics directly
+    };
+    addInternalMetaDataToBeacon(beacon, metricsToSend);
+  }
+
+  var maximumNumberOfMetaDataFields = 25;
+  var maximumLengthPerMetaDataField = 1024;
+  var languages = determineLanguages();
+
+  // Internal Meta data
+  var maximumNumberOfInternalMetaDataFields = 128;
+  var maximumLengthPerInternalMetaDataField = 1024;
+  function addCommonBeaconProperties(beacon) {
+    if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
+      var reportingBackend = defaultVars.reportingBackends[0];
+      beacon['k'] = reportingBackend['key'];
+    } else {
+      beacon['k'] = defaultVars.apiKey;
+    }
+    beacon['sv'] = defaultVars.trackingSnippetVersion;
+    beacon['r'] = defaultVars.referenceTimestamp;
+    beacon['p'] = defaultVars.page;
+    beacon['l'] = stripSecrets(win.location.href);
+    beacon['pl'] = defaultVars.pageLoadTraceId;
+    beacon['ui'] = defaultVars.userId;
+    beacon['un'] = defaultVars.userName;
+    beacon['ue'] = defaultVars.userEmail;
+    beacon['ul'] = languages;
+    beacon['ph'] = getActivePhase();
+    beacon['sid'] = defaultVars.sessionId;
+    beacon['ww'] = win.innerWidth;
+    beacon['wh'] = win.innerHeight;
+    beacon['agv'] = defaultVars.agentVersion;
+    // Google Closure compiler is not yet aware of these globals. Make sure it doesn't
+    // mangle them.
+    var anyNav = nav;
+    if (anyNav['connection'] && anyNav['connection']['effectiveType']) {
+      beacon['ct'] = anyNav['connection']['effectiveType'];
+    }
+    if (doc.visibilityState) {
+      beacon['h'] = doc.visibilityState === 'hidden' ? 1 : 0;
+    }
+    addMetaDataToBeacon(beacon, defaultVars.meta);
+    if (defaultVars.autoPageDetection) {
+      // uf field will be a comma separated string if more than one use features are supported
+      beacon['uf'] = 'sn';
+    }
+    processPerformanceMetrics(beacon);
+  }
+  function determineLanguages() {
+    if (nav.languages && nav.languages.length > 0) {
+      return nav.languages.slice(0, 5).join(',');
+    }
+    var anyNav = nav;
+    if (typeof anyNav.userLanguage === 'string') {
+      return [anyNav.userLanguage].join(',');
+    }
+    return undefined;
+  }
+  function addMetaDataToBeacon(beacon, meta) {
+    addMetaDataImpl(beacon, meta);
+  }
+  function addInternalMetaDataToBeacon(beacon, meta) {
+    var options = {
+      keyPrefix: 'im_',
+      maxFields: maximumNumberOfInternalMetaDataFields,
+      maxLengthPerField: maximumLengthPerInternalMetaDataField,
+      maxFieldsWarningMsg: 'Maximum number of internal meta data fields exceeded. Not all internal meta data fields will be transmitted.'
+    };
+    addMetaDataImpl(beacon, meta, options);
+  }
+  function addMetaDataImpl(beacon, meta, options) {
+    var keyPrefix = (options === null || options === void 0 ? void 0 : options.keyPrefix) || 'm_';
+    var maxFields = (options === null || options === void 0 ? void 0 : options.maxFields) || maximumNumberOfMetaDataFields;
+    var maxLength = (options === null || options === void 0 ? void 0 : options.maxLengthPerField) || maximumLengthPerMetaDataField;
+    var maxFieldsWarningMsg = (options === null || options === void 0 ? void 0 : options.maxFieldsWarningMsg) || 'Maximum number of meta data fields exceeded. Not all meta data fields will be transmitted.';
+    var i = 0;
+    for (var key in meta) {
+      if (hasOwnProperty(meta, key)) {
+        i++;
+        if (i > maxFields) {
+          {
+            warn(maxFieldsWarningMsg);
+          }
+          return;
+        }
+        var serializedValue = null;
+        if (typeof meta[key] === 'string') {
+          serializedValue = meta[key];
+        } else if (meta[key] === undefined) {
+          serializedValue = 'undefined';
+        } else if (meta[key] === null) {
+          serializedValue = 'null';
+        } else if (win.JSON) {
+          try {
+            serializedValue = win.JSON.stringify(meta[key]);
+          } catch (e) {
+            {
+              warn('JSON serialization of meta data', key, meta[key], 'failed due to', e, '. This value will not be transmitted.');
+            }
+            continue;
+          }
+        } else {
+          serializedValue = String(meta[key]);
+        }
+        beacon[keyPrefix + key] = serializedValue.substring(0, maxLength);
+      }
+    }
   }
 
   // See spec:
@@ -828,6 +1064,7 @@
     beacon['t_loa'] = timing.loadEventEnd - timing.loadEventStart;
     beacon['t_ttfb'] = timing.responseStart - start;
     addFirstPaintTimings(beacon, start);
+    processPerformanceMetrics(beacon);
   }
   function addFirstPaintTimings(beacon, start) {
     if (!isResourceTimingAvailable) {
@@ -899,46 +1136,6 @@
       isUnloading = true;
       fn();
     });
-  }
-
-  /*
-   * This file exists to resolve circular dependencies between
-   * lib/transmission/index.js -> lib/transmission/batched.js -> lib/hooks/XMLHttpRequest.js -> lib/transmission/index.js
-   */
-
-  function disableMonitoringForXMLHttpRequest(xhr) {
-    var state = xhr[defaultVars.secretPropertyKey] = xhr[defaultVars.secretPropertyKey] || {};
-    state.ignored = true;
-  }
-  function addResourceTiming(beacon, resource) {
-    var timings = serializeEntryToArray(resource);
-    beacon['s_ty'] = getTimingValue(timings[3]);
-    beacon['s_eb'] = getTimingValue(timings[4]);
-    beacon['s_db'] = getTimingValue(timings[5]);
-    beacon['s_ts'] = getTimingValue(timings[6]);
-    beacon['t_red'] = getTimingValue(timings[7]);
-    beacon['t_apc'] = getTimingValue(timings[8]);
-    beacon['t_dns'] = getTimingValue(timings[9]);
-    beacon['t_tcp'] = getTimingValue(timings[10]);
-    beacon['t_ssl'] = getTimingValue(timings[11]);
-    beacon['t_req'] = getTimingValue(timings[12]);
-    beacon['t_rsp'] = getTimingValue(timings[13]);
-    if (timings[14]) {
-      beacon['bt'] = timings[14];
-      beacon['bc'] = 1;
-    }
-    beacon['t_ttfb'] = getTimingValue(timings[15]);
-  }
-  function getTimingValue(timing) {
-    if (typeof timing === 'number') {
-      return timing;
-    }
-    return undefined;
-  }
-  function addCorrelationHttpHeaders(fn, ctx, traceId) {
-    fn.call(ctx, 'X-INSTANA-T', traceId);
-    fn.call(ctx, 'X-INSTANA-S', traceId);
-    fn.call(ctx, 'X-INSTANA-L', '1,correlationType=web;correlationId=' + traceId);
   }
 
   // We know that must values are plain key/value pairs. We therefore choose a format that is
@@ -1217,112 +1414,6 @@
       return undefined;
     }
   };
-
-  function _arrayLikeToArray(r, a) {
-    (null == a || a > r.length) && (a = r.length);
-    for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
-    return n;
-  }
-  function _arrayWithHoles(r) {
-    if (Array.isArray(r)) return r;
-  }
-  function _createForOfIteratorHelper(r, e) {
-    var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
-    if (!t) {
-      if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
-        t && (r = t);
-        var n = 0,
-          F = function () { };
-        return {
-          s: F,
-          n: function () {
-            return n >= r.length ? {
-              done: !0
-            } : {
-              done: !1,
-              value: r[n++]
-            };
-          },
-          e: function (r) {
-            throw r;
-          },
-          f: F
-        };
-      }
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-    var o,
-      a = !0,
-      u = !1;
-    return {
-      s: function () {
-        t = t.call(r);
-      },
-      n: function () {
-        var r = t.next();
-        return a = r.done, r;
-      },
-      e: function (r) {
-        u = !0, o = r;
-      },
-      f: function () {
-        try {
-          a || null == t.return || t.return();
-        } finally {
-          if (u) throw o;
-        }
-      }
-    };
-  }
-  function _iterableToArrayLimit(r, l) {
-    var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
-    if (null != t) {
-      var e,
-        n,
-        i,
-        u,
-        a = [],
-        f = !0,
-        o = !1;
-      try {
-        if (i = (t = t.call(r)).next, 0 === l) {
-          if (Object(t) !== t) return;
-          f = !1;
-        } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
-      } catch (r) {
-        o = !0, n = r;
-      } finally {
-        try {
-          if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
-        } finally {
-          if (o) throw n;
-        }
-      }
-      return a;
-    }
-  }
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-  function _slicedToArray(r, e) {
-    return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
-  }
-  function _typeof(o) {
-    "@babel/helpers - typeof";
-
-    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
-      return typeof o;
-    } : function (o) {
-      return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
-    }, _typeof(o);
-  }
-  function _unsupportedIterableToArray(r, a) {
-    if (r) {
-      if ("string" == typeof r) return _arrayLikeToArray(r, a);
-      var t = {}.toString.call(r).slice(8, -1);
-      return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
-    }
-  }
 
   var maxErrorsToReport = 100;
   var maxStackSize = 30;
@@ -3332,5 +3423,5 @@
   registerState('pageLoaded', state$1);
   transitionTo('init');
 
-}());
+}(util));
 //# sourceMappingURL=eum.debug.js.map
