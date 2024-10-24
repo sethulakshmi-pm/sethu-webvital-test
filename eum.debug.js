@@ -1,4 +1,4 @@
-(function (util) {
+(function () {
   'use strict';
 
   var pageLoad = 'pl';
@@ -43,7 +43,6 @@
   function hasOwnProperty(obj, key) {
     return globalHasOwnProperty.call(obj, key);
   }
-  var PERFORMANCE_METRICS_KEY = 'performanceMetrics';
   function now() {
     return new Date().getTime();
   }
@@ -448,6 +447,28 @@
     }
   }
 
+  var urlMaxLength = 255;
+  var initiatorTypes = {
+    'other': 0,
+    'img': 1,
+    // IMAGE element inside a SVG
+    'image': 1,
+    'link': 2,
+    'script': 3,
+    'css': 4,
+    'xmlhttprequest': 5,
+    'fetch': 5,
+    'beacon': 5,
+    'html': 6,
+    'navigation': 6
+  };
+  var cachingTypes = {
+    unknown: 0,
+    cached: 1,
+    validated: 2,
+    fullLoad: 3
+  };
+
   function isTransmitionRequest(url) {
     var lowerCaseUrl = url.toLowerCase();
     if (defaultVars.reportingBackends && defaultVars.reportingBackends.length > 0) {
@@ -549,28 +570,6 @@
     return !message || matchesAny(defaultVars.ignoreErrorMessages, message);
   }
 
-  var urlMaxLength = 255;
-  var initiatorTypes = {
-    'other': 0,
-    'img': 1,
-    // IMAGE element inside a SVG
-    'image': 1,
-    'link': 2,
-    'script': 3,
-    'css': 4,
-    'xmlhttprequest': 5,
-    'fetch': 5,
-    'beacon': 5,
-    'html': 6,
-    'navigation': 6
-  };
-  var cachingTypes = {
-    unknown: 0,
-    cached: 1,
-    validated: 2,
-    fullLoad: 3
-  };
-
   var INTERNAL_END_MARKER = '<END>';
   function createTrie() {
     return new Trie();
@@ -640,49 +639,6 @@
       info('Resource timing not supported.');
     }
   }
-
-  // Helper to handle sessionStorage
-  function storePerformanceMetricsData(performanceMetricsList) {
-    sessionStorage.setItem(PERFORMANCE_METRICS_KEY, JSON.stringify(performanceMetricsList));
-  }
-
-  // Helper to generate metadata from a PerformanceResourceTiming entry
-  function generateMetaData(entry) {
-    return JSON.stringify({
-      connectEnd: entry.connectEnd,
-      connectStart: entry.connectStart,
-      domainLookupEnd: entry.domainLookupEnd,
-      domainLookupStart: entry.domainLookupStart,
-      duration: entry.duration,
-      entryType: entry.entryType,
-      fetchStart: entry.fetchStart,
-      initiatorType: entry.initiatorType,
-      redirectEnd: entry.redirectEnd,
-      redirectStart: entry.redirectStart,
-      requestStart: entry.requestStart,
-      responseEnd: entry.responseEnd,
-      responseStart: entry.responseStart,
-      secureConnectionStart: entry.secureConnectionStart,
-      startTime: entry.startTime,
-      transferSize: entry.transferSize
-    });
-  }
-
-  // Generalized function to process entries and store metadata
-  function processEntry(entry) {
-    var key = "".concat(entry.name, "_").concat(generateUniqueId());
-    var performanceMetrics = _defineProperty({}, key, generateMetaData(entry));
-    return performanceMetrics;
-  }
-  function storePerformanceMetrics() {
-    var _performance$getEntri;
-    sessionStorage.removeItem(PERFORMANCE_METRICS_KEY);
-    var performanceMetricsList = [];
-    (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
-      performanceMetricsList.push(processEntry(entry));
-    });
-    storePerformanceMetricsData(performanceMetricsList);
-  }
   function getEntriesTransferFormat(performanceEntries, minStartTime) {
     var trie = createTrie();
     for (var i = 0, len = performanceEntries.length; i < len; i++) {
@@ -721,6 +677,49 @@
       }
     }
     return trie.toJs();
+  }
+
+  // Helper to handle sessionStorage
+  function storePerformanceMetricsData(performanceMetricsList) {
+    sessionStorage.setItem('performanceMetrics', JSON.stringify(performanceMetricsList));
+  }
+
+  // Helper to generate metadata from a PerformanceResourceTiming entry
+  function generateMetaData(entry) {
+    return JSON.stringify({
+      connectEnd: entry.connectEnd,
+      connectStart: entry.connectStart,
+      domainLookupEnd: entry.domainLookupEnd,
+      domainLookupStart: entry.domainLookupStart,
+      duration: entry.duration,
+      entryType: entry.entryType,
+      fetchStart: entry.fetchStart,
+      initiatorType: entry.initiatorType,
+      redirectEnd: entry.redirectEnd,
+      redirectStart: entry.redirectStart,
+      requestStart: entry.requestStart,
+      responseEnd: entry.responseEnd,
+      responseStart: entry.responseStart,
+      secureConnectionStart: entry.secureConnectionStart,
+      startTime: entry.startTime,
+      transferSize: entry.transferSize
+    });
+  }
+
+  // Generalized function to process entries and store metadata
+  function processEntry(entry) {
+    var key = "".concat(entry.name, "_").concat(generateUniqueId());
+    var performanceMetrics = _defineProperty({}, key, generateMetaData(entry));
+    return performanceMetrics;
+  }
+  function storePerformanceMetrics() {
+    var _performance$getEntri;
+    sessionStorage.removeItem('performanceMetrics');
+    var performanceMetricsList = [];
+    (_performance$getEntri = performance$1.getEntriesByType('resource')) === null || _performance$getEntri === void 0 || _performance$getEntri.forEach(function (entry) {
+      performanceMetricsList.push(processEntry(entry));
+    });
+    storePerformanceMetricsData(performanceMetricsList);
   }
 
   function serializeEntryToArray(entry) {
@@ -780,7 +779,7 @@
       }
       result.push(calculateTiming(entry['responseStart'], entry['requestStart']));
       result.push(calculateTiming(entry['responseEnd'], entry['responseStart']));
-      sessionStorage.removeItem(util.PERFORMANCE_METRICS_KEY);
+      sessionStorage.removeItem('performanceMetrics');
       var performanceMetricsList = [];
       performanceMetricsList.push(processEntry(entry));
       storePerformanceMetricsData(performanceMetricsList);
@@ -868,7 +867,7 @@
     fn.call(ctx, 'X-INSTANA-L', '1,correlationType=web;correlationId=' + traceId);
   }
   function processPerformanceMetrics(beacon) {
-    var performanceMetrics = sessionStorage.getItem(util.PERFORMANCE_METRICS_KEY) || '[]';
+    var performanceMetrics = sessionStorage.getItem('performanceMetrics') || '[]';
     var performanceMetricsList = JSON.parse(performanceMetrics);
     var combinedMetrics = performanceMetricsList.reduce(function (acc, element) {
       Object.entries(element).forEach(function (_ref) {
@@ -3423,5 +3422,5 @@
   registerState('pageLoaded', state$1);
   transitionTo('init');
 
-}(util));
+}());
 //# sourceMappingURL=eum.debug.js.map
